@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>定时器2</title>
+
+</head>
+
+<body>
+	<input type="button" value="换背景把" />
+	<input type="button" value="停" />
+	<script>
+		var aBtn = document.getElementsByTagName('input');
+		var arrUrl = ['1.jpg', '2.jpg', '3.jpg', '4.jpg'];
+		var num = 0;
+
+		var oBody = document.body;
+		var timer = null;
+		aBtn[0].onclick = function () {
+			clearInterval(timer);
+			timer = setInterval(
+				function () {
+					oBody.style.background = 'url(' + arrUrl[num] + ')';
+					num++;
+					num %= arrUrl.length
+
+				}, 1000
+			);
+			aBtn[1].onclick = function () {
+				clearInterval(timer);
+			};
+		}
+		 //		aBtn.onclick = function () {
+		 //			timer = setInterval()(function () {
+		 //				oBody.style.background = 'url(' + arrUrl[num] + ')';
+		 //				num++;
+		 //				if (num == arrUrl.length - 1) {
+		 //					num == 0;
+		 //				}
+		 //			}, 1000)
+		 //		}
+	</script>
+</body>
+
+</html>

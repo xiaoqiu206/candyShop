@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>timeOut</title>
+	<style>
+		body {
+			background-color: gray;
+			text-align: center;
+		}
+		img {
+			display: none;
+		}
+	</style>
+	<script>
+		window.onload = functin () {
+			var image = document.getElementById('ad');
+			setTimeout(function () {
+					image.style.display = 'inline-block';
+					setTimeout(function () {
+							image.style.display = 'none';
+
+						}, 4000
+
+					);
+				}, 2000
+
+			);
+		};
+	</script>
+</head>
+
+<body>
+	<img id="ad" src="4.jpg" alt="无法显示" />
+</body>
+
+</html>

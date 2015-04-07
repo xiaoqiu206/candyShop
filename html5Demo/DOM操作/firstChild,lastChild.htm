@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>title</title>
+    
+</head>
+<body>
+    <ul id="ul1" style="border:1px red solid">
+        <li>11</li>
+        <li>22</li>
+        <li>33</li>
+        <li>44</li>
+    </ul>
+    <script>/*
+        window.onload = function(){
+            oUl = document.getElementById('ul1');
+           // alert(oUl.firstChild);
+        
+        var oFirst = oUl.firstElementChild || oUl.firstChild;
+        oFirst.style.background = 'red';
+        }*/
+        var oUl = document.getElementById('ul1');
+        var oFirst = oUl.children[0];
+        oFirst.style.background = 'red';
+        
+        /*
+            元素.nextSibling 下一个兄弟节点
+            元素.nextElementSibling 下一个兄弟元素节点
+           元素.previousSibling
+           元素.previousElementSibling
+        
+        */
+        
+    </script>
+</body>
+</html>

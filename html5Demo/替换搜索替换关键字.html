@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>title</title>
+    <style>
+        span {
+            background-color: yellow;
+        }
+        p {
+            border: #6969ba 5px solid;
+            background-color: #b4a6a6;
+            margin: 15px;
+            padding: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <p>百度数据开放平台是基于百度框计算,连接站长优质数据和百度搜索结果的开放平台。站长通过提交结构化优质数据,获得百度搜索结果页“即搜即得”的搜索展现。</p>
+    <br>
+    <input type="text">
+    <input type="text">
+    <input type="button" value="替换">
+    <script>
+        var oBtns = document.getElementsByTagName('input');
+        var oP = document.getElementsByTagName('p')[0];
+        oBtns[2].onclick = function () {
+            var str = oBtns[0].value;
+            if (!str) return;
+            oP.innerHTML = oP.innerHTML.split(str).join('<span>'+oBtns[1].value+'</span>');
+        }
+    </script>
+</body>
+
+</html>

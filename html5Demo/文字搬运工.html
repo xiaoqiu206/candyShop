@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>文字搬运工</title>
+    <style>
+        input {
+            margin: 2px;
+        }
+        .wenzi {
+            width: 150px;
+            height: 250px;
+            border: blue 5px solid;
+            display: block;
+            position: absolute;
+            top: 10px;
+            background-color: #bbbbc9;
+            overflow: hidden;
+            word-wrap: break-word;
+        }
+        #d1 {
+            left: 10px;
+        }
+        #d2 {
+            left: 300px;
+        }
+        .middle {
+            width: 100px;
+            height: 250px;
+            border: gray 4px solid;
+            display: block;
+            position: absolute;
+            top: 10px;
+            left: 180px;
+        }
+        .container {
+            text-align: center;
+            position: relative;
+            top: 10px;
+        }
+        .jindutiao {
+            position: relative;
+            top: 5px;
+        }
+        ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            width: auto;
+        }
+        li {
+            display: block;
+            float: left;
+            width: 2px;
+            height: 10px;
+            background: red;
+            margin: 0;
+        }
+        #middle_p {
+            text-align: center;
+        }
+    </style>
+    <script>
+        var timer = null;
+        var count = 0;
+
+        function stop() {
+            clearInterval(timer);
+        }
+
+        function copy() {
+            //            alert(document.getElementById('d1').value);
+            var oLeftDiv = document.getElementById('d1');
+            var oRightDiv = document.getElementById('d2');
+            var oLis = document.getElementsByTagName('li');
+            var totalNum = oLeftDiv.value.length;
+            timer = setInterval(function () {
+
+                str = oLeftDiv.value;
+                len = str.length;
+                if (!len) clearInterval(timer);
+                oLeftDiv.value = str.substring(1, len);
+                oRightDiv.value += str.substring(0, 1);
+
+                ulLen = oLis.length;
+                if (count == 0) {
+                    oLis[oLis.length - 1].style.background = 'pink';
+                } else {
+                    oLis[count - 1].style.background = "red";
+                }
+                oLis[count].style.background = "yellow";
+                document.getElementById('middle_p').innerHTML = oLeftDiv.value.length + '/' + totalNum;
+                count++;
+                if (count == ulLen) count = 0;
+            }, 100);
+        }
+    </script>
+</head>
+
+<body>
+    <textarea name="" id="d1" cols="30" rows="10" class="wenzi"></textarea>
+    <div class='middle'>
+        <div class='container'>
+            <input type="button" value="开始复制" id='btn' onclick="copy();">
+            <input type="button" value="停止复制" onclick="stop();">
+        </div>
+        <p id='middle_p'>0/0</p>
+        <div class='jindutiao'>
+            <ul>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+            </ul>
+        </div>
+    </div>
+    <textarea name="" id="d2" cols="30" rows="10" class="wenzi"></textarea>
+</body>
+
+</html>

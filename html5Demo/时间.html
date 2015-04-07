@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>时间函数</title>
+	<script>
+		window.onload = function () {
+			setInterval(function () {
+				//数据类型:object
+				var myTime = new Date();
+
+				//数据类型:number
+				var iYear = myTime.getFullYear();
+				var iMonth = myTime.getMonth() + 1;
+				var iDate = myTime.getDate();
+				var iWeek = myTime.getDay();
+				var iHours = myTime.getHours();
+				var iMin = myTime.getMinutes();
+				var iSec = myTime.getSeconds();
+var weekDic = new Array('星期日','星期一','星期二','星期三','星期四','星期五','星期六');
+				iWeek = weekDic[iWeek];
+				var str = '';
+				str = iYear + '年' + iMonth + '月' + iDate + '日 ' + iWeek + toTwo(iHours) + ':' + toTwo(iMin) + ':' + toTwo(iSec);
+				var oBody = document.body;
+				oBody.innerHTML = str;
+			}, 1000);
+		};
+
+		function toTwo(n) {
+			return n < 10 ? '0' + n : '' + n; //保证返回的都是字符串
+		}
+	</script>
+</head>
+
+<body style="font-size:20px;">
+</body>
+
+</html>

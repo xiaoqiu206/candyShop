@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		#d1 {
+			height: 100px;
+			width: 100px;
+			background-color: red;
+			position: absolute;
+			left: 30px;
+			top: 50px;
+		}
+	</style>
+</head>
+
+<body>
+	<input type="button" value="前进" id='btn1'>
+	<input type="button" value="后退" id='btn2'>
+	<div id='d1'></div>
+	<script>
+		var oBtn1 = document.getElementById('btn1');
+		var oBtn2 = document.getElementById('btn2');
+		var oDiv = document.getElementById('d1');
+		var step = 3;
+
+		function getStyle(obj, attr) {
+			return obj.currentStyle ? obj.currentStyle[attr] : getComputedStyle(obj)[attr];
+		}
+		function doMove(obj,step,target){
+			clearInterval(obj.timer); //clearInterval清除null,undefind都可可以不报错
+			obj.timer = setInterval(function () {
+				var way = step + parseInt(getStyle(obj, 'left'));
+				if (way > target && step > 0 ) {
+					way = target;
+				} else if( way < target && step < 0){
+					way = target;
+				}
+				obj.style.left = way + 'px';
+				if (way == target) {
+					clearInterval(obj.timer);
+				}
+			}, 10);
+			
+			
+		};
+		oBtn1.onclick = function(){
+			doMove(oDiv,10,300);
+		};
+		oBtn2.onclick = function(){
+			doMove(oDiv,-10,30);
+		}
+	</script>
+</body>
+
+</html>

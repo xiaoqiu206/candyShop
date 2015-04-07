@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        span {
+            background-color: #d0bbbb;
+            width: 300px;
+            display: block;
+            border: #004eff 5px solid;
+        }
+    </style>
+    <script>
+        window.onload = function () {
+            var oSpan = document.getElementsByTagName('span')[0];
+            var oP = document.getElementsByTagName('p')[0];
+            var oA = document.getElementsByTagName('a')[0];
+            var str = oP.innerHTML;
+            console.log(str);
+            var onOff = true;
+            oA.onclick = function () {
+                if (onOff) {
+                    oP.innerHTML = str.substring(0, 12);
+                    oA.innerHTML=">>展开";
+                } else {
+                    oP.innerHTML = str;
+                    oA.innerHTML=">>收缩";
+                }
+                onOff = !onOff;
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <span>
+        <p>Emmet默认的标签为div。如果写生成id为aaa的div标签，那么输入命令为：#aaa；如果要编写一个class为aaa的span标签，那么我们就要编写命令为：span.aaa；如果想要编写一个id为abc的class为efg的ul标签，我们可以这样写命令：ul#abc.efga... </p><a href="javascript:;">>>收缩</a>
+        
+    </span>
+</body>
+
+</html>

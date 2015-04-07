@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <head>
+            <meta charset="utf-8"/>
+            <!-- <link rel="stylesheet" href="http://apps.bdimg.com/libs/jquerymobile/1.4.2/jquery.mobile.min.css">
+            <script src="http://apps.bdimg.com/libs/jquery/1.10.2/jquery.min.js"></script>
+            <script src="http://apps.bdimg.com/libs/jquerymobile/1.4.2/jquery.mobile.min.js"></script> -->
+
+            <link rel="stylesheet" href="G:/source/css/jquery.mobile-1.4.5.min.css">
+            <script src="G:/source/js/jquery-1.10.2.min.js"></script>
+            <script src="G:/source/js/jquery.mobile-1.4.5.min.js"></script>
+        </head>
+    </head>
+    <body>
+        <div data-role="page" data-theme="a">
+            <div data-role="header">
+                <a href="index.html" data-icon="home">首页</a>
+                <h1>加入人才库</h1>
+                <a href="index.html" data-icon="back">返回</a>
+            </div>
+            <div data-role="content">
+                <div data-role="content">
+                    <form id='f1' method="post" action="/">
+                        <div data-role="fieldcontain">
+                            <label for="fullname">全名:</label>
+                            <input type="text" name="fullname" id="fullname" placeholder="必填..">
+                        </div>
+                        <div data-role="fieldcontain">
+                            <label for="telephone">电话:</label>
+                            <input type="text" name="telephone" id="telephone" placeholder="必填..">
+                        </div>
+                        <div data-role="fieldcontain">
+                            <fieldset data-role="controlgroup" data-type="horizontal">
+                                <legend>
+                                    性别：
+                                </legend>
+                                <label for="male">男</label>
+                                <input type="radio" name="gender" id="male" value="male">
+                                <label for="female">女</label>
+                                <input type="radio" name="gender" id="female" value="female">
+                            </fieldset>
+                        </div>
+                        <fieldset data-role="fieldcontain">
+                            <label for="sex">性别</label>
+                            <select name="sex" id="sex">
+                                <option value="male">男</option>
+                                <option value="female">女</option>
+                            </select>
+                        </fieldset>
+                        <div data-role="fieldcontain">
+
+                            <label for="bday">生日:</label>
+                            <input type="date" name="bday" id="bday">
+                        </div>
+                        <div data-role="fieldcontain">
+                            <label for="email">E-mail:</label>
+                            <input type="email" name="email" id="email">
+                        </div>
+                        <div data-role="fieldcontain">
+                            <label for="city">城市</label>
+                            <input type="text" name="city" id="city">
+                        </div>
+                        <div data-role="fieldcontain">
+                            <label for="salary">期望薪酬(万/年)</label>
+                            <input type="range" name="salary" id="points" value="1" min="0" max="100">
+
+                        </div>
+                        <div data-role="fieldcontain">
+                            <label for="cvfile">简历</label>
+                            <input type="file" name="cvfile" id="cvfile">
+                        </div>
+                        <input type="button" value="提交" onclick="$("f1").submit();">
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+    </body>
+</html>

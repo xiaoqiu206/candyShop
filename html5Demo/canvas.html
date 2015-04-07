@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>canvas</title>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1 ,maximum-scale=1.0, user-scalable=no">
+        <script>
+           window.onload = function() {
+                var c = document.getElementById("myCanvas");
+                var ctx = c.getContext("2d");
+                // 画一个矩形,红色填充
+                // ctx.fillStyle = "#FF0000";
+                // ctx.fillRect(0, 0, 150, 75);
+
+                // //画一条线
+                /*
+                ctx.moveTo(0,0);
+                ctx.lineTo(200,100);
+                ctx.stroke();
+                */
+                //画一个圆形
+               ctx.beginPath();
+                ctx.arc(95, 50,40, 0, 2 * Math.PI);
+                ctx.stroke();
+              
+ 
+           
+            };
+        </script>
+    </head>
+    <body>
+        <canvas id="myCanvas" width="300px" height="300px" style="border:1px solid red">
+            myCanvas
+        </canvas>
+
+        <script>
+           document.getElementById();
+
+        </script>
+    </body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <link rel="stylesheet" href="http://apps.bdimg.com/libs/jquerymobile/1.4.2/jquery.mobile.min.css">
+        <script src="http://apps.bdimg.com/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script src="http://apps.bdimg.com/libs/jquerymobile/1.4.2/jquery.mobile.min.js"></script>
+    </head>
+    <body>
+
+        <div data-role="page" id="pageone">
+            <a href="#page2">跳转到</a>
+            <div data-role="collapsible">
+                <h1>点击我 - 我可以折叠!</h1>
+                <p>
+                    我是被展开的内容。
+                </p>
+                <div data-role="collapsible">
+                    <h1>点击我 - 我是嵌套的可折叠块！</h1>
+                    <p>
+                        我是嵌套的可折叠块中被展开的内容。
+                    </p>
+                </div>
+            </div>
+            <div data-role="header">
+                <h1>可折叠块</h1>
+            </div>
+
+            <div data-role="content">
+                <div data-role="collapsible" data-mini="true">
+                    <h1>点击我 - 我是可折叠的！</h1>
+                    <p>
+                        我是可折叠的内容。
+                    </p>
+                </div>
+            </div>
+
+            <div data-role="footer">
+                <h1>页脚</h1>
+            </div>
+        </div>
+       
+
+        <div role-data="page" id="page2">
+             <ol data-role="listview">
+  <li><a href="#">列表项m</a></li>
+</ol>
+
+<ul data-role="listview" data-inset="true" data-autodividers="true">
+  
+  <li><a href="#">美国</a></li>
+  <li><a href="#">中国</a></li>
+   <li><a href="#">德国</a></li>
+</ul>
+        <div class="ui-grid-b">
+<div class="ui-block-a"><span>Some Text</span></div>
+<div class="ui-block-b"><span>Some Text</span></div>
+<div class="ui-block-c"><span>Some Text</span></div>
+<div class="ui-block-a"><span>Some Text</span></div>
+<div class="ui-block-b"><span>Some Text</span></div>
+<div class="ui-block-a"><span>Some Text</span></div>
+</div>
+</div>
+
+    </body>
+</html>

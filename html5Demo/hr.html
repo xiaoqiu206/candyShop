@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>title</title>
+	<style>
+		#hr1{
+			width:50px;
+			color:red;
+		}
+	</style>
+</head>
+
+<body>
+	<hr id='hr1'>
+		<input id='btn1' type="button" value="show">
+	<script>
+		document.getElementById('btn1').onclick = function(){
+			alert(document.getElementById('hr1').clientWidth);
+			
+		}
+	</script>
+</body>
+</html>

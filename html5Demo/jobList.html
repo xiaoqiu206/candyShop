@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <head>
+            <meta charset="utf-8"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <link rel="stylesheet" href="http://apps.bdimg.com/libs/jquerymobile/1.4.2/jquery.mobile.min.css">
+            <script src="http://apps.bdimg.com/libs/jquery/1.10.2/jquery.min.js"></script>
+            <script src="http://apps.bdimg.com/libs/jquerymobile/1.4.2/jquery.mobile.min.js"></script>
+            <!-- <link rel="stylesheet" href="G:/source/css/jquery.mobile-1.4.5.min.css">
+            <script src="G:/source/js/jquery-1.10.2.min.js"></script>
+            <script src="G:/source/js/jquery.mobile-1.4.5.min.js"></script> -->
+            <style>
+            </style>
+        </head>
+    </head>
+    <body>
+        <div data-role="page" id="joblist" data-theme="b">
+            <div data-role="header">
+                <a href="index.html" data-icon="home">首页</a>
+                <h1>职位列表</h1>
+                <a href="index.html" data-icon="back">返回</a>
+
+            </div>
+            <div data-role="content">
+
+                <div data-role="navbar">
+                    <ul>
+                        <li>
+                            <a href="#diqu">地区</a>
+                        </li>
+                        <li>
+                            <a href="#">职能</a>
+                        </li>
+                        <li>
+                            <a href="#">行业</a>
+                        </li>
+                        <li>
+                            <a href="#">薪资</a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <input type="search" name="search" id="search" placeholder="搜索内容...">
+                <span>最新搜索:</span><span id="searchCon"></span>
+                <span><input type="submit" data-inline="true" value="确定" data-mini="true"></span>
+                <div style="margin:5px;padding:1px"></div>
+                <ul data-role="listview">
+                    <li>                
+                            <a href="job.html" data-rel="external">年薪50Ｗ以上知名地产公司企划总监
+                                
+                              <p>2014-9-9</p>   <p>武汉</p>
+                            </a>
+                    </li>
+                    <li>
+                        <a href="#">年薪50Ｗ以上知名地产公司企划总监
+                                
+                              <p>2014-9-9</p>   <p>武汉</p>
+                            </a>
+                    </li>
+                    <li>
+                        <a href="#">年薪50Ｗ以上知名地产公司企划总监
+                                
+                              <p>2014-9-9</p>   <p>长沙</p>
+                            </a>
+                    </li>
+                    <li>
+                        <a href="#">年薪30-50w武汉银行行业应税管理
+                                
+                              <p>2014-9-9</p>   <p>上海</p>
+                            </a>
+                    </li>
+                    <li>
+                        <a href="#">年薪30-50w武汉银行行业应税管理
+                                
+                              <p>2014-9-9</p>   <p>上海</p>
+                            </a>
+                    </li>
+                    <li>
+                        <a href="#">年薪30-50w武汉银行行业应税管理
+                                
+                              <p>2014-9-9</p>   <p>上海</p>
+                            </a>
+                    </li>
+                    <li>
+                        <a href="#">年薪30-50w武汉银行行业应税管理
+                                
+                              <p>2014-9-9</p>   <p>上海</p>
+                            </a>
+                    </li>
+                </ul>
+
+            </div>
+            <div data-role="footer">
+                <div data-role="navbar">
+                    <ul>
+                        <li>
+                            <a href="#anylink">上一页</a>
+                        </li>
+                        <li>
+                            <a href="#anylink">2/3</a>
+                        </li>
+                        <li>
+                            <a href="#anylink">下一页</a>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+        <div data-role="page" id="diqu" data-theme="b">
+            <ul data-role="listview" data-filter="true" data-filter-placeholder="快速搜索">
+                <li data-role="list-divider"></li>
+                <li>
+                    <a href="#hubei">湖北</a>
+                </li>
+                <li>
+                    <a href="#">湖南</a>
+                </li>
+                <li>
+                    <a href="#">江西</a>
+                </li>
+                <li>
+                    <a href="#">山东</a>
+                </li>
+                <li>
+                    <a href="#">山西</a>
+                </li>
+                <li>
+                    <a href="#">广东</a>
+                </li>
+                <li>
+                    <a href="#">广西</a>
+                </li>
+                <li>
+                    <a href="#">贵州</a>
+                </li>
+                <li>
+                    <a href="#">云南</a>
+                </li>
+                <li>
+                    <a href="#">陕西</a>
+                </li>
+                <li>
+                    <a href="#">四川</a>
+                </li>
+                <li>
+                    <a href="#">重庆</a>
+                </li>
+            </ul>
+
+        </div>
+        <div data-role="page" id="hubei" data-theme="b">
+            <ul data-role="listview">
+                <li>
+                    <a href="#">全省</a>
+                </li>
+                <li>
+                    <a href="#joblist" onclick=" document.getElementById('searchCon').innerHTML=this.innerHTML">武汉</a>
+                </li>
+                <li>
+                    <a href="#">荆门</a>
+                </li>
+                <li>
+                    <a href="#">襄樊</a>
+                </li>
+                <li>
+                    <a href="#">十堰</a>
+                </li>
+                <li>
+                    <a href="#">荆州</a>
+                </li>
+                <li>
+                    <a href="#">恩施</a>
+                </li>
+            </ul>
+
+        </div>
+    </body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>图片时间</title>
+
+    <script>
+        var op = document.getElementById('p1');
+
+        window.onload = function () {
+            setInterval(function () {
+                //数据类型:object
+                var myTime = new Date();
+                //数据类型:number
+                var iHours = myTime.getHours();
+                var iMin = myTime.getMinutes();
+                var iSec = myTime.getSeconds();
+
+                str = toTwo(iHours) + toTwo(iMin) + toTwo(iSec);
+
+                p1.innerHTML = '<b><i>' + str + '</i></b>';
+                imgs = document.getElementsByClassName('ntime');
+//                console.log(imgs);
+                for (var n = 0; n < str.length; n++) {
+                    imgs[n].src = 'img/time/' + str.charAt(n) + '.JPG';
+                }
+
+            }, 1000);
+        };
+
+        function toTwo(n) {
+            return n < 10 ? '0' + n : '' + n; //保证返回的都是字符串
+        }
+    </script>
+    <style>
+        #p1 {
+            color: blue;
+            font-size: 30px;
+        }
+    </style>
+</head>
+
+<body style="font-size:20px;">
+    <p id="p1"></p>
+    <div id='d1'>
+        <img class="ntime" src="" alt="">
+        <img class="ntime" src="" alt="">
+        <img src="img/time/colon.JPG" alt="">
+        <img src="" alt="" class="ntime">
+        <img src="" alt="" class="ntime">
+        <img src="img/time/colon.JPG" alt="">
+        <img src="" alt="" class="ntime">
+        <img src="" alt="" class="ntime">
+    </div>
+</body>
+
+</html>

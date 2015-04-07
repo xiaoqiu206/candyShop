@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="GBK">
+  <meta name="keywords" content="360极速浏览器,HTML5实验室" />
+  <meta name="description" content="360极速浏览器 HTML5实验室" />
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  <title>网页摄像头 (Media Capture)- 360极速浏览器 HTML5实验室</title>
+  <link rel="stylesheet" type="text/css" href="http://chrome.360.cn/html5_labs/common/styles.css">
+  <style>
+    #video_stream {
+      width: 400px;
+      border: 8px inset silver;
+    }
+    #video_box {
+      display: none;
+      margin-top: 30px;
+    }
+    #msg_box {
+     text-align: left;
+     padding: 18px;
+     line-height: 1.6;
+    }
+  </style>
+  <!--[if lt IE 9]>
+  <script src="http://chrome.360.cn/HTML5_labs/common/html5shiv.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div class="lab_page">
+    <div id="header">
+      <h1>HTML5 实验室</h1>
+      <h2 id="demo_title">网页摄像头 (Media Capture)</h2>
+    </div>
+    <div id="main_area">
+      <div id="demo_description">
+        <section>
+          <h3>什么是 Media Capture</h3>
+          <p>
+            <a href="http://dev.w3.org/2011/webrtc/editor/getusermedia.html" target="_blank">Media Capture</a> 可以让网页通过浏览器，直接访问您的摄像头获取图像。适用于社交网站。
+          </p>
+          <div class="indent">
+            <h4>安全风险</h4>
+            <p class="small">为了禁止网站滥用此特性，当网页要对您的摄像头或其他媒体设备进行访问时，需要得到您的授权。</p>
+            <p class="small">如：360极速浏览器会提醒您进行授权，在得到您的授权后才能访问摄像头。如果您的浏览器未授权就自动访问您的摄像头获取图像，则说明该浏览器对Media CaptureMedia Capture的支持存在风险！</p>
+          </div>
+        </section>
+        <section>
+          <h3>演示</h3>
+          <p>本页面用来测试对 <a href="http://dev.w3.org/2011/webrtc/editor/getusermedia.html" target="_blank">Media Capture</a> 的支持。点击“打开我的摄像头”按钮，在该页面上就会看到您的摄像头获取到的图像。</p>
+          <p>您还可以 <a href="http://chrome.360.cn/html5_labs/demos/webcam/index.html" target="_blank">点击这里</a> 查看更多炫酷的图像效果！</p>
+        </section>
+      </div>
+      <div id="error_msg">
+        <table border="0">
+          <tr>
+            <td width="70"><img src="http://w.qhimg.com/images/v2/360se/2012/06/14/error_mark.png" /></td>
+            <td>您的浏览器<span id="error_details"></span>，请下载支持此特性的 <a id="download_link" href="http://dl.360safe.com/cse/360cse_setup.exe">新版360极速浏览器</a> 进行测试。</td>
+          </tr>
+        </table>
+      </div>
+      <div id="demo_area">
+        <button id="launch_button">打开我的摄像头</button>
+        <div id="msg_box"><b>请点击“允许”按钮，授权网页访问您的摄像头！</b><br>若您并未看到任何授权提示，则表示您的浏览器不支持Media Capture或您的机器没有连接摄像头设备。</div>
+        <div id="video_box"><video id="video_stream" autoplay></video></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Normalizes window.URL
+    window.URL = window.URL || window.webkitURL || window.msURL || window.oURL;
+
+    // Normalizes navigator.getUserMedia
+    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia
+                           || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
+    function isChromiumVersionLower() {
+      var ua = navigator.userAgent;
+      var testChromium = ua.match(/AppleWebKit\/.* Chrome\/([\d.]+).* Safari\//);
+      if (!testChromium) return false;
+
+      var rltArray = testChromium[1].split('.');
+      return ((parseInt(rltArray[0]) < 18) || ((parseInt(rltArray[0]) == 18) && (parseInt(rltArray[1]) == 0) && (parseInt(rltArray[2]) < 966)));
+    }
+
+    function showErrorMsg(error_details) {
+      document.getElementById('error_details').innerHTML = error_details;
+      document.getElementById('error_msg').style.display = 'block';
+      document.getElementById('demo_area').style.display = 'none';
+    }
+
+    function successsCallback(stream) {
+      document.getElementById('msg_box').style.display = 'none';
+      document.getElementById('video_box').style.display = 'block';
+      document.getElementById('video_stream').src = (window.URL && window.URL.createObjectURL) ? window.URL.createObjectURL(stream) : stream;
+    }
+
+    function errorCallback(err) {
+      console.log(err);
+    }
+
+    function accessLocalWebCam() {
+      document.getElementById('video_box').style.display = 'none';
+      document.getElementById('msg_box').style.display = 'block';
+      try {
+        // Tries it with spec syntax
+        navigator.getUserMedia({ video: true }, successsCallback, errorCallback);
+      } catch (err) {
+        console.log(err);
+        // Tries it with old spec of string syntax
+        navigator.getUserMedia('video', successsCallback, errorCallback);
+      }
+    }
+
+    if (isChromiumVersionLower()) {
+      showErrorMsg('内核版本较低，可能无法支持 getUserMedia 接口');
+    } else if (!navigator.getUserMedia) {
+      showErrorMsg('不支持 getUserMedia 接口');
+    } else {
+      document.getElementById('launch_button').addEventListener('click', accessLocalWebCam, false);
+    }
+  </script>
+  <script type="text/javascript" src="http://s0.qhimg.com/monitor/;monitor/1924ce05.js"></script>
+  <script>
+    monitor.setProject('360_ee_html5labs').setId('download_link', 'launch_button').getTrack();
+  </script>
+</body>

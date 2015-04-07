@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>字符串</title>
+</head>
+<script>
+    var str = '妙味课堂';
+    //    alert(str.charAt());
+    //    //charAt()不写参数,默认是0
+    //    
+    //    alert(str.charCodeAt());
+    //    //22937
+    //    alert(str.charCodeAt(1));
+    //    
+    //   alert( String.fromCharCode(22937,21619));
+    //
+</script>
+<script>window.onload = function(){
+    document.getElementById('check').onclick = function () {
+        str = document.getElementById('checked').value;
+        alert(checkNum(str)?'是数字':'不是数字');
+    }
+}
+    function checkNum(str) {
+        len = str.length
+        for (n in str) {
+            each = str.charCodeAt(n);
+            if (each > 57 || each < 48)
+                return false;
+        }
+        return true;
+    }
+</script>
+
+<body>
+    <input id='checked' type="text">
+    <input id='check' type="button" value='检测'>
+</body>
+
+</html>

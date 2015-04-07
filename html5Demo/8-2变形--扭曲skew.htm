@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>扭曲</title>
+    <style>
+        div{
+            width:200px;
+
+        }
+        .wrapper{
+            width: 300px;
+            height: 100px;
+            border:2px dotted red;
+            margin: 30px auto;
+        }
+        .wrapper div{
+            width: 300px;
+            height: 100px;
+            line-height: 100px;
+            text-align: center;
+            color:red;
+            background: green;
+            transform:skew(30deg);
+        }
+        span{
+            display: block;
+            transform:skew(-30deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div>
+            <span>我不想被扭曲</span>
+        </div>
+        
+    </div>
+</body>
+</html>

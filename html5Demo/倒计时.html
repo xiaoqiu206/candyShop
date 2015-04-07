@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>倒计时</title>
+</head>
+<script>
+    //基本思想,未来的时间点:不变,现在的时间:每秒都变化
+    var inow = new Date();
+    var inew = new Date(2015, 0, 16, 15, 10, 0);
+//    var inew = new Date('June 10,2013 12:12:12');
+    //英语好的这样写
+    var t = Math.floor((inew - inow) / 1000);
+    //2个时间相减得到是是毫秒数
+    //alert(t);
+    var day = Math.floor(t/ 86400); //天
+    var hour = Math.floor(t % 86400 / 3600); //时
+    var min = Math.floor(t % 86400 % 3600 / 60); //分
+    var sec = t % 60;
+
+    var str = day + '天' + hour + '时' + min + '分' + sec + '秒';
+    alert(str);
+
+    </script>
+
+<body>
+
+</body>
+
+</html>
