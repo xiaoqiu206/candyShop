@@ -28,21 +28,22 @@ def sure():
         result = opener.open(req)
         html = result.read()
         soup = BS(html)
-        tbody = soup.find_all('tbody')[1]
+        tbody = soup.find_all('tbody')[0]
         trs = tbody.find_all('tr')
         for tr in trs:
-            if tr.find_all('td')[1].text.contains('56366'):
-                req2 = urllib2.Request(url=url + '/' + tr.find_all('td')[0], headers=headers)
+            if '56366' in tr.find_all('td')[1].text:
+            # if tr.find_all('td')[1].text.contains('56366'):
+                req2 = urllib2.Request(url='http://www.maxshu.com/Merchant/HandleUnHandleManualOrder/' + tr.find_all('td')[0].text, headers=headers)
                 result2 = opener.open(req2)
                 html2 = result2.read()
                 soup2 = BS(html2)
-                form = soup2.find_all('form')[0]
+                form = soup2.find('form')
                 # 找出帐号和数量
                 uls = form.find_all('ul')
                 num = uls[3].text.split(':')[1]
                 account = uls[8].find('input')['value']
                 brun(account, num)
-                inputs = form.find_all('input')
+                inputs = form.select('a[name]')
                 data = {}
                 for each in inputs:
                     data[each['name']] = each['value']
@@ -86,8 +87,8 @@ def brun(account, num):
     inputs = re.findall(r'''<input.+type="hidden".+>''', html)
     postData = {}
     for each in inputs:
-        print each.split('"')[3], each.split('"')[5]
         postData[each.split('"')[3]] = each.split('"')[5]
+    print postData
     req1 = urllib2.Request(url='http://ls.99dk.cn/Card/BuyCard_Step3.asp', headers=headers)
     r2 = opener.open(req1, urllib.urlencode(postData))
     print u'充值帐号:', account
