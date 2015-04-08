@@ -8,23 +8,66 @@ from Tkinter import Tk, Label, Entry, Button
 import urllib
 import urllib2
 from bs4 import BeautifulSoup as BS
+import re
+import time
 
 
 def sure():
+    while True:
+        url = 'http://www.maxshu.com/Merchant/QueryUnhandleManualOrder'
+        headers = {'Host': 'www.maxshu.com',
+                   'User-Agent': a_ua_entry.get(),
+                   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                   'Accept-Language': 'zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3',
+                   'Cookie': a_cookie_entry.get()
+                  #  'X-Requested-With': 'XMLHttpRequest',
+                   # 'Referer': 'http://data.10jqka.com.cn/funds/ddzz/'
+                   }
+        opener = urllib2.build_opener()
+        req = urllib2.Request(url=url, headers=headers)
+        result = opener.open(req)
+        html = result.read()
+        soup = BS(html)
+        tbody = soup.find_all('tbody')[1]
+        trs = tbody.find_all('tr')
+        for tr in trs:
+            if tr.find_all('td')[1].text.contains('56366'):
+                req2 = urllib2.Request(url=url + '/' + tr.find_all('td')[0], headers=headers)
+                result2 = opener.open(req2)
+                html2 = result2.read()
+                soup2 = BS(html2)
+                form = soup2.find_all('form')[0]
+                # 找出帐号和数量
+                uls = form.find_all('ul')
+                num = uls[3].text.split(':')[1]
+                account = uls[8].find('input')['value']
+                brun(account, num)
+                inputs = form.find_all('input')
+                data = {}
+                for each in inputs:
+                    data[each['name']] = each['value']
+                data = urllib.urlencode(data)
+                req = urllib2.Request(url=url, headers=headers)
+                result = opener.open(req, data)
+        time.sleep(10)
+        
+        
+def brun(account, num):
+    # B站的情况
     url = 'http://ls.99dk.cn/Card/BuyCard_Step2.asp'
     headers = {'Host': 'ls.99dk.cn',
-               'User-Agent': ua_entry.get(),
+               'User-Agent': b_ua_entry.get(),
                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                'Accept-Language': 'zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3',
-               'Cookie': cookie_entry.get()
+               'Cookie': b_cookie_entry.get()
               #  'X-Requested-With': 'XMLHttpRequest',
                # 'Referer': 'http://data.10jqka.com.cn/funds/ddzz/'
                }
-    data = {'GameId': account_entry.get(),
-            'ReGameId': account_entry.get(),
+    data = {'GameId': account,
+            'ReGameId': account,
             'chargetype': "CF»áÔ±",
             'chargetype1': "CFCLUB",
-            'buynumber': num_entry,
+            'buynumber': num,
             'unitLabel': "¸öÔÂ",
             'BuyCardNumber': "1",
             'SalePrice': "30.00",
@@ -40,40 +83,40 @@ def sure():
     req = urllib2.Request(url=url, headers=headers)
     result = opener.open(req, urllib.urlencode(data))
     html = result.read()
-    print html
-    soup = BS(html)
-    form = soup.find_all('form', attrs={'name': 'buycard'})[0]
-    inputs = form.find_all('input', attrs={'type': 'hidden'})
+    inputs = re.findall(r'''<input.+type="hidden".+>''', html)
     postData = {}
     for each in inputs:
-        postData[each['name']] = each['value']
-    postData = urllib.urlencode(postData)
+        print each.split('"')[3], each.split('"')[5]
+        postData[each.split('"')[3]] = each.split('"')[5]
     req1 = urllib2.Request(url='http://ls.99dk.cn/Card/BuyCard_Step3.asp', headers=headers)
-    r2 = opener.open(req1, postData)
+    r2 = opener.open(req1, urllib.urlencode(postData))
+    print u'充值帐号:', account
+    print u'充值数量:', num
 
 
 root = Tk()
-Label(root, text=u'User-Agent').grid(row=0)
 
-ua_entry = Entry(root)
-ua_entry.grid(row=1)
+a_ua_label = Label(root, text='A站UA')
+a_cookie_label = Label(root, text='A站cookie')
+a_ua_entry = Entry(root)
+a_cookie_entry = Entry(root)
 
-Label(root, text='cookie').grid(row=2)
+b_ua_label = Label(root, text='B站UA')
+b_cookie_label = Label(root, text='B站cookie')
+b_ua_entry = Entry(root)
+b_cookie_entry = Entry(root)
 
-cookie_entry = Entry(root)
-cookie_entry.grid(row=3)
+a_ua_label.grid(row=0, column=0)
+a_ua_entry.grid(row=0, column=1)
+a_cookie_label.grid(row=0, column=2)
+a_cookie_entry.grid(row=0, column=3)
 
-Label(root, text=u'购买数量:').grid(row=4)
+b_ua_label.grid(row=1, column=0)
+b_ua_entry.grid(row=1, column=1)
+b_cookie_label.grid(row=1, column=2)
+b_cookie_entry.grid(row=1, column=3)
 
-num_entry = Entry(root)
-num_entry.grid(row=5)
-
-Label(root, text=u'充值帐号').grid(row=6)
-
-account_entry = Entry(root)
-account_entry.grid(row=7)
-
-Button(root, text=u'确定', command=sure).grid(row=8)
+Button(root, text='确定', command=sure).grid(row=2, column=0)
 
 root.mainloop()
 
