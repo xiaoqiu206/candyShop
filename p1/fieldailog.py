@@ -15,6 +15,6 @@ def pick():
     dirname = tkFileDialog.askdirectory(parent=root, initialdir="/", title='Pick a directory')
     print dirname
     
-Button(root, text='选择',command=pick).pack()
+Button(root, text='选择', command=pick).pack()
 
 root.mainloop()
