@@ -4,9 +4,10 @@ Created on 2015年4月1日
 
 @author: Administrator
 '''
-from Tkinter import *
+import hashlib
 
-root = Tk()
+d5 = hashlib.md5('10197fyjnrgdgfsf464613131'.encode('utf-8')).hexdigest()
 
-Entry(root).pack()
-root.mainloop()
+m = hashlib.md5()
+m.update('10197fyjnrgdgfsf464613131')
+print m.hexdigest()
