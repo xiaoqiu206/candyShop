@@ -5,11 +5,13 @@ Created on 2015年4月8日
 @author: Administrator
 '''
 from Tkinter import Tk, Label, Entry, Button
-import urllib
-import urllib2
-from bs4 import BeautifulSoup as BS
 import re
 import time
+import urllib
+from urllib2 import URLError
+import urllib2
+
+from bs4 import BeautifulSoup as BS
 
 
 def sure():
@@ -41,7 +43,11 @@ def sure():
                 # 找出帐号和数量
                 uls = form.find_all('ul')
                 num = uls[3].text.split(':')[1]
-                account = uls[8].find('input')['value']
+                try:
+                    account = uls[8].find('input')['value']
+                except KeyError:
+                    print '发生错误:keyError, line 49'
+                    return
                 brun(account, num)
                 inputs = form.select('a[name]')
                 data = {
@@ -76,7 +82,7 @@ def brun(account, num):
             'BuyCardNumber': num,
             'SalePrice': "30.00",
             'IntegralPrice': "0.00",
-            'TotalMoney': "30",
+            'TotalMoney': str(30 * int(num)),
             'BankName': "account",
             'ChargeMoney': "0",
             'IsServiceChargeMoney': "0",
@@ -85,7 +91,11 @@ def brun(account, num):
             }
     opener = urllib2.build_opener()
     req = urllib2.Request(url=url, headers=headers)
-    result = opener.open(req, urllib.urlencode(data))
+    try:
+        result = opener.open(req, urllib.urlencode(data))
+    except URLError:
+        print '发生错误:URLErroe line 93'
+        return
     html = result.read()
     inputs = re.findall(r'''<input.+type="hidden".+>''', html)
     postData = {}
@@ -93,12 +103,15 @@ def brun(account, num):
         postData[each.split('"')[3]] = each.split('"')[5]
     # print postData
     req1 = urllib2.Request(url='http://ls.99dk.cn/Card/BuyCard_Step3.asp', headers=headers)
-    r2 = opener.open(req1, urllib.urlencode(postData))
-    
+    try:
+        r2 = opener.open(req1, urllib.urlencode(postData))
+    except URLError:
+        print '发生错误:URLErroe line 109'
+        return
     timestamp = time.time()
     timeArray = time.localtime(timestamp)
     timestr = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
-    
+
     print u'充值帐号:', account
     print u'充值数量:', num
     print u'时间: ', timestr
@@ -129,29 +142,3 @@ b_cookie_entry.grid(row=1, column=3)
 Button(root, text='确定', command=sure).grid(row=2, column=0)
 
 root.mainloop()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
