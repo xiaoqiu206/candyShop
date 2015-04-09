@@ -44,15 +44,18 @@ def sure():
                 account = uls[8].find('input')['value']
                 brun(account, num)
                 inputs = form.select('a[name]')
-                data = {}
-                for each in inputs:
-                    data[each['name']] = each['value']
+                data = {
+                        'OrderID': uls[0].text.split(':')[1],
+                        'State':'101',
+                        'StateInfo':'',
+                        'RechargeAccountUsername': uls[12].find('input')['value']
+                        }
                 data = urllib.urlencode(data)
-                req = urllib2.Request(url=url, headers=headers)
+                req = urllib2.Request(url='http://www.maxshu.com/Merchant/HandleManualOrder/', headers=headers)
                 result = opener.open(req, data)
         time.sleep(10)
-        
-        
+
+
 def brun(account, num):
     # B站的情况
     url = 'http://ls.99dk.cn/Card/BuyCard_Step2.asp'
@@ -66,11 +69,11 @@ def brun(account, num):
                }
     data = {'GameId': account,
             'ReGameId': account,
-            'chargetype': "CF»áÔ±",
+            # 'chargetype': "CF会员",
             'chargetype1': "CFCLUB",
             'buynumber': num,
-            'unitLabel': "¸öÔÂ",
-            'BuyCardNumber': "1",
+            # 'unitLabel': "¸öÔÂ",
+            'BuyCardNumber': num,
             'SalePrice': "30.00",
             'IntegralPrice': "0.00",
             'TotalMoney': "30",
@@ -88,11 +91,17 @@ def brun(account, num):
     postData = {}
     for each in inputs:
         postData[each.split('"')[3]] = each.split('"')[5]
-    print postData
+    # print postData
     req1 = urllib2.Request(url='http://ls.99dk.cn/Card/BuyCard_Step3.asp', headers=headers)
     r2 = opener.open(req1, urllib.urlencode(postData))
+    
+    timestamp = time.time()
+    timeArray = time.localtime(timestamp)
+    timestr = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
+    
     print u'充值帐号:', account
     print u'充值数量:', num
+    print u'时间: ', timestr
 
 
 root = Tk()
