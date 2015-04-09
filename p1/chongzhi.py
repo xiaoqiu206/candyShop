@@ -27,7 +27,11 @@ def sure():
                    }
         opener = urllib2.build_opener()
         req = urllib2.Request(url=url, headers=headers)
-        result = opener.open(req)
+        try:
+            result = opener.open(req)
+        except URLError:
+            print u'发生错误:urlerror  line 33 '
+            continue
         html = result.read()
         soup = BS(html)
         tbody = soup.find_all('tbody')[0]
@@ -43,22 +47,28 @@ def sure():
                 # 找出帐号和数量
                 uls = form.find_all('ul')
                 num = uls[3].text.split(':')[1]
-                try:
-                    account = uls[8].find('input')['value']
-                except KeyError:
-                    print '发生错误:keyError, line 49'
-                    return
+                RechargeAccountUsername = ''
+                for ul in uls:
+                    if ul.find('code').text == u'充值用户名:':
+                        account = ul.find('input')['value']
+                    # if ul.find('code').text == u'代充帐号:':
+                        # RechargeAccountUsername = ul.find('input')['value']
+                        break  # 最后一个ul里面没有code,所以不能遍历完
                 brun(account, num)
                 inputs = form.select('a[name]')
                 data = {
                         'OrderID': uls[0].text.split(':')[1],
                         'State':'101',
                         'StateInfo':'',
-                        'RechargeAccountUsername': uls[12].find('input')['value']
+                        'RechargeAccountUsername': 'wenming'
                         }
                 data = urllib.urlencode(data)
                 req = urllib2.Request(url='http://www.maxshu.com/Merchant/HandleManualOrder/', headers=headers)
-                result = opener.open(req, data)
+                try:
+                    result = opener.open(req, data)
+                except:
+                    print '发生错误:URLError, line 68'
+                    continue
         time.sleep(10)
 
 
