@@ -81,6 +81,8 @@ def getList(page=1):
                     reDict['ebayid'] = ebayid
                 else:
                     break
+            else:
+                reDict['ebayid'] = ebayid
             # 过滤parcelsn(装箱号,有表示已装箱,没有表示没有装箱)
             parcelsn = ebay.find('parcelsn').text
             if package_entry.get().upper() == 'Y' and parcelsn == '':
@@ -95,16 +97,11 @@ def getList(page=1):
             paidtime = ebay.find('paidtime').text
             paidtimestamp = ftime2stamp(paidtime)
             # 过滤开始时间,xml里的paidtime是GMT,界面输入的时间是GMT+8
-            if starttime_entry.get():
-                if paidtimestamp + 8 * 3600 > ftime2stamp(starttime_entry.get()):
-                    reDict['paidtime'] = paidtimestamp
-                else:
-                    break
-            if endtime_entry.get():
-                if paidtimestamp + 8 * 3600 < ftime2stamp(endtime_entry.get()):
-                    reDict['paidtime'] = paidtimestamp
-                else:
-                    break
+            if starttime_entry.get() and paidtimestamp + 8 * 3600 < ftime2stamp(starttime_entry.get()):
+                break
+            if endtime_entry.get() and paidtimestamp + 8 * 3600 > ftime2stamp(endtime_entry.get()):
+                break
+            reDict['paidtime'] = paidtime
             reDict['currency'] = ebay.find('currency').text
             reDict['gross'] = ebay.find('gross').text
             reDict['shippingcost'] = ebay.find('shippingcost').text
@@ -135,6 +132,8 @@ def getList(page=1):
                     break
                 else:
                     reDict['countryCode'] = buyer.find('countryCode').text
+            else:
+                reDict['countryCode'] = buyer.find('countryCode').text
             reList.append(reDict)
         num_record = list(set(num_record))
     print u'实际导出记录数是: ', len(num_record)
