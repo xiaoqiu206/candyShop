@@ -62,7 +62,7 @@ def getList(page=1):
         print root.find('message').find('errorCode').text
         print root.find('message').find('errorMsg').text
         return None
-    
+
     pagination = root.find('pagination')
 
     print 'totalpages: ', pagination.find('totalpages').text
@@ -77,7 +77,7 @@ def getList(page=1):
             # 过滤 ebayid
             ebayid = ebay.find('ebayid').text
             if ebay_entry.get():
-                if ebayid in ebay_entry.get().split(','):
+                if ebayid.upper() in ebay_entry.get().upper().split(','):
                     reDict['ebayid'] = ebayid
                 else:
                     break
@@ -85,14 +85,13 @@ def getList(page=1):
                 reDict['ebayid'] = ebayid
             # 过滤parcelsn(装箱号,有表示已装箱,没有表示没有装箱)
             parcelsn = ebay.find('parcelsn').text
-            if package_entry.get().upper() == 'Y' and parcelsn == '':
+            if package_entry.get().upper() == 'Y' and parcelsn is None:
                 break
-            if package_entry.get().upper() == 'N' and parcelsn != '':
+            if package_entry.get().upper() == 'N' and parcelsn is not None:
                 break
 
             ebaysalesrecordnumber = ebay.find('ebaysalesrecordnumber').text
             reDict['ebaysalesrecordnumber'] = ebaysalesrecordnumber
-            num_record.append(ebaysalesrecordnumber)
 
             paidtime = ebay.find('paidtime').text
             paidtimestamp = ftime2stamp(paidtime)
@@ -134,8 +133,9 @@ def getList(page=1):
                     reDict['countryCode'] = buyer.find('countryCode').text
             else:
                 reDict['countryCode'] = buyer.find('countryCode').text
+            num_record.append(ebaysalesrecordnumber)
             reList.append(reDict)
-        num_record = list(set(num_record))
+    num_record = list(set(num_record))
     print u'实际导出记录数是: ', len(num_record)
     return reList
 
