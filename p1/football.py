@@ -162,7 +162,7 @@ def sure():
     爬取网站上的主流公司列表
     """
     url = entry1.get('0.0', END)
-    # print url
+    print url
     html = urllib.urlopen(url + '?ctype=2').read()  # 获取主流公司
     soup = BeautifulSoup(html)
     tr1s = soup.find_all('tr', attrs={'class': 'tr1'})
@@ -171,7 +171,8 @@ def sure():
     for each in tr1s:
         zy_list.append(each.find_all('td', limit=2)[1].find('p').find('a').find('span').get_text())
     for one in tr2s:
-        zy_list.append(one.find_all('td', limit=2)[1].find('p').find('a').find('span').get_text())    
+        zy_list.append(one.find_all('td', limit=2)[1].find('p').find('a').find('span').get_text())
+    print zy_list 
     exeBtn()
 
 def exeBtn():
