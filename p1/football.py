@@ -10,6 +10,7 @@ from Tkinter import Tk, Frame, Label, Button, Text, END
 import urllib
 import xlwt
 from bs4 import BeautifulSoup
+import spynner
 
 
 root = Tk()
@@ -43,8 +44,12 @@ def excel():
     # 获取选定的主流公司的数据写入右边区域
     url = entry1.get('0.0', END)
     print '获取到的主流公司url', url
-    html = urllib.urlopen(url + '?ctype=2').read()  # 获取主流公司
-    soup = BeautifulSoup(html)
+    # html = urllib.urlopen(url + '?ctype=2').read()  # 获取主流公司
+    browser = spynner.Browser()
+    browser.show()
+    browser.load(url + '?ctype=2')
+    print browser.html
+    soup = BeautifulSoup(browser.html)
     tr1s = soup.find_all('tr', attrs={'class': 'tr1'})
     tr2s = soup.find_all('tr', attrs={'class': 'tr2'})
     want_list = label2['text'].split(':')[1].split('||')
@@ -153,7 +158,7 @@ def excel():
             table.write(x, y, redList[i].get_text(), styleRed)
             i += 1
     fname = unicode(soup.title.get_text()) + u'.xls'
-    table.write_merge(0, 0, 1, 9, soup.title.get_text(),xlwt.easyxf("font: height 240, name Arial; align: wrap on, vert centre, horiz center;"))
+    table.write_merge(0, 0, 1, 9, soup.title.get_text(), xlwt.easyxf("font: height 240, name Arial; align: wrap on, vert centre, horiz center;"))
     ef.save(fname.replace('/', '-'))
 
 
@@ -163,8 +168,12 @@ def sure():
     """
     url = entry1.get('0.0', END)
     print url
-    html = urllib.urlopen(url + '?ctype=2').read()  # 获取主流公司
-    soup = BeautifulSoup(html)
+    # html = urllib.urlopen(url + '?ctype=2').read()  # 获取主流公司
+    browser = spynner.Browser()
+    browser.load('http://odds.500.com/fenxi/ouzhi-452241.shtml')
+    browser.show()
+    print browser.html
+    soup = BeautifulSoup(browser.html)
     tr1s = soup.find_all('tr', attrs={'class': 'tr1'})
     tr2s = soup.find_all('tr', attrs={'class': 'tr2'})
     global zy_list
