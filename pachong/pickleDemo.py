@@ -10,13 +10,14 @@ except:
     import pickle
 
 '''
-t1 = ('this is a string', 42, [1, 2, 3], None)
-p1 = pickle.dumps(t1)
-print p1
-t2 = pickle.loads(p1)
-print t2
-p2 = pickle.dumps(t1, True)
-print p2[1]
+a = 'orange'
+f1 = open('1.pk','wb')
+pickle.dump(a, f1, True)
 '''
-    
-    
+f2 = file('1.pk','rb')
+b = pickle.load(f2)
+c = pickle.load(f2)
+print b, c
+
+
+

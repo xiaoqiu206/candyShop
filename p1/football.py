@@ -4,13 +4,12 @@ Created on 2015年3月28日
 赌球,数据分析
 @author: Administrator
 '''
-
 import tkFont
 from Tkinter import Tk, Frame, Label, Button, Text, END
 import urllib
 import xlwt
 from bs4 import BeautifulSoup
-import spynner
+import time
 
 
 root = Tk()
@@ -32,37 +31,22 @@ def excel():
     if length != 10:
         label3['text'] = u'你输入了' + str(length - 1) + u'公司'
         return
-    '''
-    timeStr = urllib.urlopen('http://123.57.32.23/tiantian/time/').read()
-    timeFloat = float(timeStr)
-    if timeFloat > 1428246368:
-        return
-    '''
     ef = xlwt.Workbook(encoding='utf-8')
     table = ef.add_sheet('sheet1')
 
     # 获取选定的主流公司的数据写入右边区域
     url = entry1.get('0.0', END)
+    fullurl = url + '?ctype=2'
     print '获取到的主流公司url', url
     # html = urllib.urlopen(url + '?ctype=2').read()  # 获取主流公司
-    browser = spynner.Browser()
-    browser.show()
-    browser.load(url + '?ctype=2')
-    print browser.html
-    soup = BeautifulSoup(browser.html)
-    tr1s = soup.find_all('tr', attrs={'class': 'tr1'})
-    tr2s = soup.find_all('tr', attrs={'class': 'tr2'})
+
+    soup = BeautifulSoup(open('2.html'), 'html5lib')
+    trs = soup.find_all('tr', id=True)
     want_list = label2['text'].split(':')[1].split('||')
     global zy_data
-    for each in tr1s:
+    for each in trs:
         if each.find_all('td', limit=2)[1].find('p').find('a').find('span').get_text() in want_list:
             tbody = each.find_all('td')[2].find('table').find('tbody')
-            for x in range(0, 2):
-                for y in range(0, 3):
-                    zy_data.append(tbody.find_all('tr')[x].find_all('td')[y].get_text())
-    for one in tr2s:
-        if one.find_all('td', limit=2)[1].find('p').find('a').find('span').get_text() in want_list:
-            tbody = one.find_all('td')[2].find('table').find('tbody')
             for x in range(0, 2):
                 for y in range(0, 3):
                     zy_data.append(tbody.find_all('tr')[x].find_all('td')[y].get_text())
@@ -117,8 +101,7 @@ def excel():
             i += 1
 
     # 交易所的平均值
-    html = urllib.urlopen(url + '?ctype=3').read()  # 获取交易所的数据
-    soup = BeautifulSoup(html)
+    soup = BeautifulSoup(open('3.html'))
     pinkList = []
     btm = soup.find(id='table_btm')
     pinkList.append(baifenshu(btm.find('table').find_all('tbody')[2].find_all('td')[0].get_text()))
@@ -167,20 +150,12 @@ def sure():
     爬取网站上的主流公司列表
     """
     url = entry1.get('0.0', END)
-    print url
     # html = urllib.urlopen(url + '?ctype=2').read()  # 获取主流公司
-    browser = spynner.Browser()
-    browser.load('http://odds.500.com/fenxi/ouzhi-452241.shtml')
-    browser.show()
-    print browser.html
-    soup = BeautifulSoup(browser.html)
-    tr1s = soup.find_all('tr', attrs={'class': 'tr1'})
-    tr2s = soup.find_all('tr', attrs={'class': 'tr2'})
+    soup = BeautifulSoup(open('2.html'))
+    trs = soup.find_all('tr', id=True)
     global zy_list
-    for each in tr1s:
+    for each in trs:
         zy_list.append(each.find_all('td', limit=2)[1].find('p').find('a').find('span').get_text())
-    for one in tr2s:
-        zy_list.append(one.find_all('td', limit=2)[1].find('p').find('a').find('span').get_text())
     print zy_list 
     exeBtn()
 
@@ -440,6 +415,8 @@ for k, v in frame1.children.items():
 
 label2 = Label(frame2, font=ft, text='选中的公司有:', height=5)
 label2.pack()
-
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
 
 root.mainloop()
