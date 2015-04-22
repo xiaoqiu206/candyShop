@@ -12,5 +12,6 @@ from bs4 import BeautifulSoup as BS
 
 browser = spynner.Browser()
 browser.show()
-browser.load('http://odds.500.com/fenxi/ouzhi-452241.shtml?ctype=2')
+browser.load('http://bf.310v.com/3.html')
+browser.wait(30)
 print browser.html.encode('utf-8')

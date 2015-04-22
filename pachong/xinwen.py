@@ -14,7 +14,7 @@ from splinter import Browser
 import re
 
 
-DB_FILE = 'xinwen.db'  # sqlite数据库文件
+DB_FILE = '../../xinwen/sqlite.db'  # sqlite数据库文件
 
 XINXI_URL = 'http://portal.cwu.edu.cn'
 XINXI_LIST = ('xytz', 'xyxw', 'bmtz', 'bmtx', 'jwtz', 'xsgz', 'zygg')
@@ -57,22 +57,22 @@ def handler_xinxi_lis(lis, url, is_first):
         title = li.find_all('a')[0]['title']
         rel_time = li.find_all('span')[0].get_text()
         unuse_section = li.find_all('span')[1].get_text()
-        m = re.search(ur'\[\S+\]', unuse_section)
+        m = re.search(ur'\[\*+\]', unuse_section)
         section = m.group()[1:len(m.group()) - 1]
         if is_first:
-            cur.execute('insert into xinwen(title,rel_time,links,section,type) values(?,?,?,?,?)', (title, rel_time, links, section, url))
+            cur.execute('insert into xinwenshow_news(title,rel_time,links,section,type) values(?,?,?,?,?)', (title, rel_time, links, section, url))
             print title, rel_time, links, section
         else:  # 取出数据来比对
             max_rel_time_rows = cur.execute("""
                 select title, rel_time from xinwen where section<>? and rel_time=(
-                    select max(rel_time) from xinwen)
+                    select max(rel_time) from xinwenshow_news)
                                             """ , (url,))
             max_rel_titles = []  # 最大时间的title列表
             for row in max_rel_time_rows:
                 max_rel_titles.append(row[0])
                 max_rel_time = row[1]
             if rel_time >= max_rel_time and title not in max_rel_titles:  # 对比,如果html里的时间>=最大时间且title不相同
-                cur.execute('insert into xinwen(title,rel_time,links,section) values(?,?,?,?)', (title, rel_time, links, u'教务通知'))
+                cur.execute('insert into xinwenshow_news(title,rel_time,links,section) values(?,?,?,?)', (title, rel_time, links, u'教务通知'))
                 print title, rel_time, links, section
     con.commit()
     con.close()
@@ -104,18 +104,18 @@ def handler_lis(lis, page, num_per_page, is_first=False):
         links = 'http://jw.cwu.edu.cn/homepage/' + li.find('div').find('a')['href']
         rel_time = li.find('div').find('span').get_text()
         if is_first:  # 如果是第一次扒取,不需要比对数据,直接插入
-            cur.execute('insert into xinwen(title,rel_time,links,section,type) values(?,?,?,?,?)', (title, rel_time, links, u'教务处', 'jwtz'))
+            cur.execute('insert into xinwenshow_news(title,rel_time,links,section,type) values(?,?,?,?,?)', (title, rel_time, links, u'教务处', 'jwtz'))
         else:  # 如果不是第一次扒取,需要和原有数据库里的数据比对,避免重复插入
             max_rel_time_rows = cur.execute("""
-                select title, rel_time from xinwen where type='jwtz' and rel_time=(
-                    select max(rel_time) from xinwen)
+                select title, rel_time from xinwenshow_news where type='jwtz' and rel_time=(
+                    select max(rel_time) from xinwenshow_news)
                                             """)
             max_rel_titles = []  # 最大时间的title列表
             for row in max_rel_time_rows:
                 max_rel_titles.append(row[0])
                 max_rel_time = row[1]
             if rel_time >= max_rel_time and title not in max_rel_titles:  # 对比,如果html里的时间>=最大时间且title不相同
-                cur.execute('insert into xinwen(title,rel_time,links,section,type) values(?,?,?,?,?)', (title, rel_time, links, u'教务处', 'jwtz'))
+                cur.execute('insert into xinwenshow_news(title,rel_time,links,section,type) values(?,?,?,?,?)', (title, rel_time, links, u'教务处', 'jwtz'))
                 insert_number += 1
     con.commit()
     con.close()
@@ -157,8 +157,8 @@ def excel(file_name):
 
 
 if __name__ == '__main__':
-    # jiaowuchu('jiaowuchu.html')  # 首次扒取教通知,从本地文件获取数据
+    jiaowuchu('jiaowuchu.html')  # 首次扒取教通知,从本地文件获取数据
     # excel('1.xls')         # 将新闻从数据库取出,保存到1.xls
-    # jiaowuchu()  # 从网上扒取教务通知,可以添加定时任务
+    jiaowuchu()  # 从网上扒取教务通知,可以添加定时任务
     xinxi(True)  # 首次扒取新闻页
     # xinxi(False)       # 添加定时任务扒取新闻页
