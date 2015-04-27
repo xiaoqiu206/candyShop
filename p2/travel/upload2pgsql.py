@@ -9,6 +9,11 @@ from config import *
 import sqlite3
 import time
 
+MONTH = {'Jan': '01', 'Feb': '02', 'Mar': '03',
+             'Apr': '04', 'May': '05', 'Jun': '06',
+             'Jul': '07', 'Aug': '08', 'Sep': '09',
+             'Oct': '10', 'Nov': '11', 'Dec': '12'
+             }
 
 def upload2pgsql():
     pg_con = psycopg2.connect(database=PGSQL_DBNAME, user=PGSQL_USERNAME, password=PGSQL_PASSWORD, host=PGSQL_HOST, port=PGSQL_PORT)
@@ -27,11 +32,14 @@ def upload2pgsql():
 def update_or_save(row, pg_con, pg_cur):
     travel_code = row[1]
     travel_date = row[2]
+    if travel_date.find(' ') != -1:  # 如果日期里包含空格
+        datelist = travel_date.split(' ')
+        travel_date = datelist[2] + '-' + MONTH[datelist[1]] + '-' + datelist[0].zfill(2)
     adults_price = row[3]
     children_price = row[4]
     remark = row[5]
     get_time = row[6]
-    
+
     select_sql = "select count(*) from travllist_travel where travel_code=%s and travel_date=%s"
     pg_cur.execute(select_sql, (travel_code, travel_date))
     rows = pg_cur.fetchall()
