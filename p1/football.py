@@ -6,10 +6,10 @@ Created on 2015年3月28日
 '''
 import tkFont
 from Tkinter import Tk, Frame, Label, Button, Text, END
-import urllib
 import xlwt
 from bs4 import BeautifulSoup
 import time
+from splinter import Browser
 
 
 root = Tk()
@@ -36,11 +36,11 @@ def excel():
 
     # 获取选定的主流公司的数据写入右边区域
     url = entry1.get('0.0', END)
-    fullurl = url + '?ctype=2'
+    url2 = url + '?ctype=2'
     print '获取到的主流公司url', url
     # html = urllib.urlopen(url + '?ctype=2').read()  # 获取主流公司
-
-    soup = BeautifulSoup(open('2.html'), 'html5lib')
+    b1.execute_script("window.location.href = '%s'" % url2.replace('\n', ''))
+    soup = BeautifulSoup(b1.html, 'html5lib')
     trs = soup.find_all('tr', id=True)
     want_list = label2['text'].split(':')[1].split('||')
     global zy_data
@@ -101,7 +101,9 @@ def excel():
             i += 1
 
     # 交易所的平均值
-    soup = BeautifulSoup(open('3.html'))
+    url3 = url + '?ctype=3'
+    b1.execute_script("window.location.href='%s'" % url3.replace('\n', ''))
+    soup = BeautifulSoup(b1.html, 'html5lib')
     pinkList = []
     btm = soup.find(id='table_btm')
     pinkList.append(baifenshu(btm.find('table').find_all('tbody')[2].find_all('td')[0].get_text()))
@@ -151,7 +153,11 @@ def sure():
     """
     url = entry1.get('0.0', END)
     # html = urllib.urlopen(url + '?ctype=2').read()  # 获取主流公司
-    soup = BeautifulSoup(open('2.html'))
+    print url
+    url2 = url + '?ctype=2'
+    print url2
+    b1.execute_script("window.location.href='%s'" % url2.replace('\n', ''))
+    soup = BeautifulSoup(b1.html, 'html5lib')
     trs = soup.find_all('tr', id=True)
     global zy_list
     for each in trs:
@@ -415,8 +421,7 @@ for k, v in frame1.children.items():
 
 label2 = Label(frame2, font=ft, text='选中的公司有:', height=5)
 label2.pack()
-import sys
-reload(sys)
-sys.setdefaultencoding("utf-8")
+b1 = Browser()
+b1.visit('http://www.baidu.com')
 
 root.mainloop()
