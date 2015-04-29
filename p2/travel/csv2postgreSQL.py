@@ -10,7 +10,7 @@ import time
 import csv
 
 
-CSV_FILE = '123.csv'  # csv文件的路径+文件名
+CSV_FILE = 'Daily4UM.csv'  # csv文件的路径+文件名
 
 MONTH2NUM = {'Jan': '01', 'Feb': '02', 'Mar': '03',
              'Apr': '04', 'May': '05', 'Jun': '06',
@@ -32,7 +32,7 @@ def upload():
     cur = con.cursor()
     reader = csv.reader(file(CSV_FILE, 'rb'))
     for code, adultprice, date, signdate in reader:
-        if date.find(' ') != -1:
+        if date.find('date') == -1:
             update_or_save(code, adultprice, date, signdate, con, cur)
 
 
