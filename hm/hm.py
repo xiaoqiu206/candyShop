@@ -26,7 +26,12 @@ def mycmp(x, y):
         elif x[2] < y[2]:
             return 1
         else:
-            return cmp(len(x[0]), len(y[0]))
+            if len(x[0]) < len(y[0]):
+                return -1
+            elif len(x[0]) > len(y[0]):
+                return 1
+            else:
+                return cmp(x[0], y[0])
 
 
 def analysis(filenames, hm=2):
@@ -51,20 +56,33 @@ def analysis(filenames, hm=2):
     length = len(data)
     print u'数据总行数: ', length
     # print data[0:300]
+    count = 1  # 编号
     for k, v in enumerate(data):
         if k % 10000 == 0:
             print k, time.strftime("%H:%M:%S", time.localtime(time.time()))
-        v[-1] += str(k) + ' '  # 给每行编号
+        # 先和前一个数据比对,如果和前一个数据A,B,C列相同将不比对
+        if k > 0 and v[0] == data[k - 1][0] and v[1] == data[k - 1][1] and v[2] == data[k - 1][2]:
+            v[-1] = data[k - 1][-1]
+            continue
         for x in xrange(k + 1, length):  # 遍历后面每行,比对数据
             if v[1] + v[2] == data[x][1] + data[x][2]:  # 如果BC列相同,就比对A列
                 # 如果A列长度相同并且海明距离小于等于设定数值,就添加编号
                 if len(v[0]) == len(data[x][0]):
                     if hamming_distance(v[0], data[x][0]) <= hm:
-                        data[x][-1] += str(k) + ' '
+                        data[x][-1] += str(count) + ' '
+                        v[-1] += str(count) + ' '
+                        count += 1
                 else:  # 如果A列长度不一样,就结束本次循环,后面的不用比对
                     break
             else:  # 如果BC列不相同,那么后面的就不用比对了,本次循环结束
                 break
+    f1 = file('3.csv', 'wb')
+    
+    # 全部数据写入一个CSV分析
+    writer = csv.writer(f1)
+    for each in data:
+       writer.writerow(each) 
+
     # 将数据转化为字典,格式为 csv文件名:数据
     datadict = {}
     for each in data:

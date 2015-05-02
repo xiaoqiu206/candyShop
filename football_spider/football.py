@@ -79,6 +79,7 @@ def myAlign(string, length=0):
         re += placeholder
         slen += 1
     return re
-    
+
+
 if __name__ == '__main__':
     spider()

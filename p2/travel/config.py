@@ -3,14 +3,15 @@
 URL_LIST里存放网页地址,如果某个地址的数据不需要,在行首加 # 符号注释掉
 '''
 URL_LIST = (
-        'http://zh.papillon.com/las-vegas-tours/bus-tours/grand-canyon-west-rim-bus-tour',
-        'http://zh.papillon.com/las-vegas-tours/bus-tours/grand-canyon-west-rim-bus-tour-with-skywalk',
-        'http://zh.papillon.com/las-vegas-tours/bus-tours/west-rim-bus-tour-with-helicopter-and-skywalk',
-        'http://zh.papillon.com/las-vegas-tours/bus-tours/west-rim-bus-tour-with-helicopter',
-        'http://zh.papillon.com/las-vegas-tours/bus-tours/west-rim-bus-tour-with-helicopter-boat-cruise-and-skywalk',
-        'http://zh.papillon.com/las-vegas-tours/helicopter-with-skywalk-tours/skywalk-getaway-with-heli-and-boat',
-        'http://zh.papillon.com/las-vegas-tours/bus-tours/grand-canyon-south-rim-bus-tour',
-        'http://zh.papillon.com/las-vegas-tours/bus-tours/south-rim-bus-tour-with-helicopter',
+            'http://zh.papillon.com/las-vegas-tours/bus-tours/west-rim-bus-tour-with-helicopter-and-boat-cruise',
+        #'http://zh.papillon.com/las-vegas-tours/bus-tours/grand-canyon-west-rim-bus-tour',
+        #'http://zh.papillon.com/las-vegas-tours/bus-tours/grand-canyon-west-rim-bus-tour-with-skywalk',
+        #'http://zh.papillon.com/las-vegas-tours/bus-tours/west-rim-bus-tour-with-helicopter-and-skywalk',
+        #'http://zh.papillon.com/las-vegas-tours/bus-tours/west-rim-bus-tour-with-helicopter',
+       # 'http://zh.papillon.com/las-vegas-tours/bus-tours/west-rim-bus-tour-with-helicopter-boat-cruise-and-skywalk',
+        #'http://zh.papillon.com/las-vegas-tours/helicopter-with-skywalk-tours/skywalk-getaway-with-heli-and-boat',
+        #'http://zh.papillon.com/las-vegas-tours/bus-tours/grand-canyon-south-rim-bus-tour',
+        #'http://zh.papillon.com/las-vegas-tours/bus-tours/south-rim-bus-tour-with-helicopter',
         # 'http://www.baidu.com',
         )
 
