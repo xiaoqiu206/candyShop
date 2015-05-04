@@ -1,5 +1,9 @@
 eclipse.preferences.version=1
+encoding//WSGI/DEMO.py=utf-8
+encoding//WSGI/app.py=utf-8
+encoding//WSGI/server.py=utf-8
 encoding//demo1/duiqi.py=utf-8
+encoding//demo1/error.py=utf-8
 encoding//demo1/fibonaqi.py=utf-8
 encoding//football_spider/config.py=utf-8
 encoding//football_spider/football.py=utf-8
@@ -32,3 +36,5 @@ encoding//pachong/xinwen.py=utf-8
 encoding//pachong/\u622A\u5C4F.py=utf-8
 encoding//ttkdemo/demo1.py=utf-8
 encoding//ttkdemo/demo2.py=utf-8
+encoding//ttkdemo/demo3.py=utf-8
+encoding//ttkdemo/gundongtiao.py=utf-8

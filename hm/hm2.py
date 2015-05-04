@@ -1,7 +1,7 @@
 # coding=utf-8
 '''
 Created on 2015年5月1日
-计算数据相似性
+计算数据相似性,备份2
 @author: Administrator
 '''
 import csv
