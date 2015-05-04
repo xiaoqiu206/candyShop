@@ -91,6 +91,7 @@ def handler_data(data, hm):
     length = len(data)
     count = 1  # 编号
     for k, v in enumerate(data):
+        v[-1] += str(count) + ' '
         if k % 10000 == 0:
             print k, time.strftime("%H:%M:%S", time.localtime(time.time()))
         # 先和前一个数据比对,如果和前一个数据A,B,C列相同将不比对
@@ -98,17 +99,18 @@ def handler_data(data, hm):
             v[-1] = data[k - 1][-1]
             continue
         for x in xrange(k + 1, length):  # 遍历后面每行,比对数据
-            count += 1
             # 如果BC列相同且A列长度相同,就计算海明距离
             if (v[1], v[2]) == (data[x][1], data[x][2]) and len(v[0]) == len(data[x][0]):
                 if hamming_distance(v[0], data[x][0]) <= hm:
                     data[x][-1] += str(count) + ' '
-                    v[-1] += str(count) + ' '
             else:  # 如果BC列不相同,那么后面的就不用比对了,本次循环结束
                 break
-        if k in (89, 90, 91):
-            print k, v[-1]
-        
+        count += 1
+    for each in data:
+        if each[-1] == '':
+            count += 1
+            each[-1] = count
+    print count
 
 def analysis(filenames, hm=2):
     '''
