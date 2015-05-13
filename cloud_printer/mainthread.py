@@ -6,14 +6,20 @@ Created on 2015年5月12日
 '''
 import MySQLdb
 import time
+import datetime
 import hashlib
 import urllib
+import urllib2
 import json
-
+import threading
 
 # php接口
 TOKEN = 'jj24l5na090h2kq309ah2'  # 接口token值
-PHP_ORDER_URL = 'http://localhost/python_api'  # php处理订单的API的url
+# php处理订单的API的url
+PHP_ORDER_URL = 'http://chuanmei.taotangmi.com/index.php?c=index&a=callback'
+
+# 数据库连接connection,做个长连接
+DB_CONNECTION = None
 
 # 阿里云数据库连接参数
 DB_HOST = 'tangmi2015.mysql.rds.aliyuncs.com'
@@ -24,11 +30,28 @@ DB_NAME = 'printergiahoocom'
 
 # SQL语句模板
 # 获取user_id,app_id,app_secret
-SQL_GET_APPID_SECRET = 'SELECT user_id, user_appid, user_appsecert FROM printer_user'
-
+SQL_GET_APPID_SECRET = 'SELECT user_id, appid, appsecert FROM user_view where user_id=7'
 
 # 调用有赞API(查询卖家已卖出的交易列表)调用参数
 YOUZAN_URL = 'http://open.koudaitong.com/api/entry'
+
+# FEIE打印机接口调用参数
+FEIE_HOST = 'http://www.feieyun.com/FeieServer'
+FEIE_QUERY_PRINTER_STATUS_ACTION = '/queryPrinterStatusAction'
+
+
+class OrderThread(threading.Thread):
+
+    ''' 同时读取多个商家的订单,用多线程处理'''
+
+    def __init__(self, user_id, app_id, app_secret):
+        threading.Thread.__init__(self)
+        self.user_id = user_id
+        self.app_id = app_id
+        self.app_secret = app_secret
+
+    def run(self):
+        get_orders(self.user_id, self.app_id, self.app_secret, 1)
 
 
 def get_url_data(app_id, app_secret, page_no):
@@ -38,13 +61,16 @@ def get_url_data(app_id, app_secret, page_no):
     timestamp = get_timestamp()
     v = '1.0'
     use_has_next = 'true'
-    sign = '%sapp_id%smethod%spage_no%dstatus%stimestamp%suse_has_next%sv%s%s' % (
-        app_secret, app_id, method, page_no, status, timestamp, use_has_next, v, app_secret)
+    page_size = 500
+    start_created = get_start_created()
+    sign = '%sapp_id%smethod%spage_no%dpage_size%dstart_created%sstatus%stimestamp%suse_has_next%sv%s%s' % (
+        app_secret, app_id, method, page_no, page_size, start_created, status, timestamp, use_has_next, v, app_secret)
     md5_sign = hashlib.md5(sign).hexdigest()
     url_data = {'status': status, 'method': method, 'use_has_next': use_has_next,
-                'timestamp': timestamp, 'v': v, 'sign': md5_sign, 'app_id': app_id, 'page_no':page_no}
+                'timestamp': timestamp, 'v': v, 'sign': md5_sign, 'app_id': app_id,
+                'page_no': page_no, 'page_size': page_size, 'start_created': start_created}
     data = urllib.urlencode(url_data)
-    print 'urldata: ', data
+    # print get_timestamp(),'urldata: ', data
     return data
 
 
@@ -63,10 +89,11 @@ def get_orders(user_id, app_id, app_secret, page_no):
     if 'response' in orders_data:  # 如果返回正确
         trades = orders_data['response']['trades']
         if trades:  # 如果有订单
-            print u'trades.length: ', len(trades), 'page: ', page_no
+            print get_timestamp(), 'trades.length: ', len(trades), 'page: ', page_no
             for trade in trades:
-                print user_id, trade['tid']
-                # php_orders(user_id, trade['tid'])  # 将订单的tid和user_id发送给php
+                # 将订单的tid和user_id发送给php处理
+                # thread.start_new_thread(php_orders, (user_id, trade['tid']))
+                php_orders(user_id, trade['tid'])
         if orders_data['response']['has_next']:  # 如果有下一页
             page = page_no + 1
             get_orders(user_id, app_id, app_secret, page)
@@ -74,15 +101,25 @@ def get_orders(user_id, app_id, app_secret, page_no):
 
 def php_orders(user_id, tid):
     '将user_id和tid发送给php'
-    data = {'token': TOKEN, 'tid': tid, 'user_id': user_id}
-    url_data = urllib.urlencode(data)
-    urllib.urlopen(PHP_ORDER_URL, url_data)
+    # data = {'token': TOKEN, 'tid': tid, 'user_id': user_id}
+    # url_data = urllib.urlencode(data)
+    urlstr = '%s&token=%s&tid=%s&user_id=%s' % (
+        PHP_ORDER_URL, TOKEN, tid, user_id)
+    print urlstr
+    try:
+        urllib2.urlopen(url=urlstr, timeout=0.1)
+    except urllib2.HTTPError:
+        print 'http error'
+    except IOError:
+        print 'io error'
 
 
 def orders_job():
     userid_appid_secret = get_userid_appid_secret()
     for (user_id, app_id, app_secret) in userid_appid_secret:
-        get_orders(user_id, app_id, app_secret, 1)
+        # 读取每个商家的订单,一个商家一个线程
+        order_thread = OrderThread(user_id, app_id, app_secret)
+        order_thread.start()
 
 
 def get_timestamp():
@@ -92,8 +129,7 @@ def get_timestamp():
 
 def get_userid_appid_secret():
     '获得所有商家的appid和appSecret'
-    con = MySQLdb.connect(
-        host=DB_HOST, passwd=DB_PASSWORD, port=DB_PORT, user=DB_USER, db=DB_NAME)
+    con = DB_CONNECTION
     cur = con.cursor()
     cur.execute(SQL_GET_APPID_SECRET)
     rows = cur.fetchall()
@@ -104,7 +140,50 @@ def get_userid_appid_secret():
     return userid_appid_secret
 
 
+def get_db_con():
+    '获得数据库连接'
+    con = MySQLdb.connect(
+        host=DB_HOST, passwd=DB_PASSWORD, port=DB_PORT, user=DB_USER, db=DB_NAME)
+    print get_timestamp(), 'get db connection'
+    return con
+
+
+def get_seconds():
+    '获取当前时间的秒数'
+    return datetime.datetime.now().second
+
+
+def get_start_created():
+    '有赞接口开始交易时间,设置为3分钟之内的交易'
+    some_time_ago = datetime.datetime.now() - datetime.timedelta(minutes=3)
+    some_time_ago_format = some_time_ago.strftime('%Y-%M-%d %H:%M:%S')
+    return some_time_ago_format
+
+
+def get_feie_printer_status(sn, key):
+    params = {'sn': sn, 'key': key}
+    encodedata = urllib.urlencode(params)
+    urlstr = FEIE_HOST + FEIE_QUERY_PRINTER_STATUS_ACTION
+    try:
+        result = urllib.urlopen(url=urlstr, data=encodedata, timeout=1)
+    except urllib2.HTTPError, e:
+        print e
+    else:
+        handle_printer_status_result(result)
+
+
+def handle_printer_status_result(result):
+    pass
+
 if __name__ == '__main__':
+    # get_feie_printer_status(1, 2)
+    # print get_start_created()
+    DB_CONNECTION = get_db_con()
     while 1:
+        # 每分钟第10秒,断开数据库连接,重新连
+        if get_seconds() == '10':
+            DB_CONNECTION.close()
+            print get_timestamp(), 'close db connection'
+            DB_CON = get_db_con()
         orders_job()
-        time.sleep(40)
+        time.sleep(10)
