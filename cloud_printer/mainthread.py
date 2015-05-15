@@ -12,6 +12,7 @@ import urllib
 import urllib2
 import json
 import threading
+import memcache
 
 # php接口
 TOKEN = 'jj24l5na090h2kq309ah2'  # 接口token值
@@ -20,6 +21,9 @@ PHP_ORDER_URL = 'http://chuanmei.taotangmi.com/index.php?c=api&a=get_orders'
 
 # 数据库连接connection,做个长连接
 DB_CONNECTION = None
+
+# memcached,key=tid,value=user_id
+TID_USERID_MC = None
 
 # 阿里云数据库连接参数
 DB_HOST = 'tangmi2015.mysql.rds.aliyuncs.com'
@@ -62,13 +66,16 @@ def get_url_data(app_id, app_secret, page_no):
     v = '1.0'
     use_has_next = 'true'
     page_size = 500
-    start_created = get_start_created()
-    sign = '%sapp_id%smethod%spage_no%dpage_size%dstart_created%sstatus%stimestamp%suse_has_next%sv%s%s' % (
-        app_secret, app_id, method, page_no, page_size, start_created, status, timestamp, use_has_next, v, app_secret)
+    start_update = get_start_created()
+    sign = '%sapp_id%smethod%spage_no%dpage_size%dstart_update%sstatus%stimestamp%suse_has_next%sv%s%s' % (
+        app_secret, app_id, method, page_no, page_size, start_update, status, timestamp, use_has_next, v, app_secret)
+    #sign = '%sapp_id%smethod%spage_no%dpage_size%dstatus%stimestamp%suse_has_next%sv%s%s' % (
+    #    app_secret, app_id, method, page_no, page_size, status, timestamp, use_has_next, v, app_secret)
+
     md5_sign = hashlib.md5(sign).hexdigest()
     url_data = {'status': status, 'method': method, 'use_has_next': use_has_next,
                 'timestamp': timestamp, 'v': v, 'sign': md5_sign, 'app_id': app_id,
-                'page_no': page_no, 'page_size': page_size, 'start_created': start_created}
+                'page_no': page_no, 'page_size': page_size, 'start_update':start_update}
     data = urllib.urlencode(url_data)
     # print get_timestamp(),'urldata: ', data
     return data
@@ -92,26 +99,23 @@ def get_orders(user_id, app_id, app_secret, page_no):
             print get_timestamp(), 'trades.length: ', len(trades), 'page: ', page_no
             for trade in trades:
                 # 将订单的tid和user_id发送给php处理
-                # thread.start_new_thread(php_orders, (user_id, trade['tid']))
-                php_orders(user_id, trade)
+                if not TID_USERID_MC.get(trade['tid'].encode('utf-8')):  # 如果mc里没有该tid
+                    php_orders(user_id, trade)  # 发送给php接口
+                    TID_USERID_MC.set(trade['tid'].encode('utf-8'), user_id, 65)
         if orders_data['response']['has_next']:  # 如果有下一页
             page = page_no + 1
             get_orders(user_id, app_id, app_secret, page)
 
 
 def php_orders(user_id, trade):
-    '将user_id和tid发送给php'
-    # data = {'token': TOKEN, 'tid': tid, 'user_id': user_id}
-    # url_data = urllib.urlencode(data)
-    urlstr = '%s&token=%s&params=%s&user_id=%s' % (
-        PHP_ORDER_URL, TOKEN, json.dumps(trade), user_id)
-    print urlstr
+    '将user_id和trade发送给php'
+    data = {'token':TOKEN, 'params':json.dumps(trade),'user_id':user_id}
     try:
-        urllib2.urlopen(url=urlstr, timeout=0.1)
+        print urllib2.urlopen(url=PHP_ORDER_URL, data=urllib.urlencode(data)).read()
     except urllib2.HTTPError:
-        print 'http error'
-    except IOError:
-        print 'io error'
+        print 'php_orders:http error'
+    else:
+    	print 'user_id: ', user_id, ' tid: ', trade['tid']
 
 
 def orders_job():
@@ -156,9 +160,9 @@ def get_seconds():
 
 
 def get_start_created():
-    '有赞接口开始交易时间,设置为3分钟之内的交易'
-    some_time_ago = datetime.datetime.now() - datetime.timedelta(minutes=120)
-    some_time_ago_format = some_time_ago.strftime('%Y-%M-%d %H:%M:%S')
+    '有赞接口开始交易时间,设置为60秒钟之内的交易'
+    some_time_ago = datetime.datetime.now() - datetime.timedelta(seconds=60)
+    some_time_ago_format = some_time_ago.strftime('%Y-%m-%d %H:%M:%S')
     return some_time_ago_format
 
 
@@ -179,9 +183,10 @@ def handle_printer_status_result(result):
 
 if __name__ == '__main__':
     # get_feie_printer_status(1, 2)
-    # print get_start_created()
-    #print_status = get_feie_printer_status('815500235', '8yct23Du')
-    #print print_status
+    print get_start_created()
+    # print_status = get_feie_printer_status('815500235', '8yct23Du')
+    # print print_status
+    TID_USERID_MC = memcache.Client(['127.0.0.1:11211'])
     DB_CONNECTION = get_db_con()
     while 1:
         # 每分钟第10秒,断开数据库连接,重新连
@@ -190,4 +195,4 @@ if __name__ == '__main__':
             print get_timestamp(), 'close db connection'
             DB_CON = get_db_con()
         orders_job()
-        time.sleep(10)
+        time.sleep(1)
