@@ -16,7 +16,7 @@ import threading
 # php接口
 TOKEN = 'jj24l5na090h2kq309ah2'  # 接口token值
 # php处理订单的API的url
-PHP_ORDER_URL = 'http://chuanmei.taotangmi.com/index.php?c=index&a=callback'
+PHP_ORDER_URL = 'http://chuanmei.taotangmi.com/index.php?c=api&a=get_orders'
 
 # 数据库连接connection,做个长连接
 DB_CONNECTION = None
@@ -36,7 +36,7 @@ SQL_GET_APPID_SECRET = 'SELECT user_id, appid, appsecert FROM user_view where us
 YOUZAN_URL = 'http://open.koudaitong.com/api/entry'
 
 # FEIE打印机接口调用参数
-FEIE_HOST = 'http://www.feieyun.com/FeieServer'
+FEIE_HOST = 'http://121.42.48.187/WPServer'
 FEIE_QUERY_PRINTER_STATUS_ACTION = '/queryPrinterStatusAction'
 
 
@@ -93,18 +93,18 @@ def get_orders(user_id, app_id, app_secret, page_no):
             for trade in trades:
                 # 将订单的tid和user_id发送给php处理
                 # thread.start_new_thread(php_orders, (user_id, trade['tid']))
-                php_orders(user_id, trade['tid'])
+                php_orders(user_id, trade)
         if orders_data['response']['has_next']:  # 如果有下一页
             page = page_no + 1
             get_orders(user_id, app_id, app_secret, page)
 
 
-def php_orders(user_id, tid):
+def php_orders(user_id, trade):
     '将user_id和tid发送给php'
     # data = {'token': TOKEN, 'tid': tid, 'user_id': user_id}
     # url_data = urllib.urlencode(data)
-    urlstr = '%s&token=%s&tid=%s&user_id=%s' % (
-        PHP_ORDER_URL, TOKEN, tid, user_id)
+    urlstr = '%s&token=%s&params=%s&user_id=%s' % (
+        PHP_ORDER_URL, TOKEN, json.dumps(trade), user_id)
     print urlstr
     try:
         urllib2.urlopen(url=urlstr, timeout=0.1)
@@ -129,12 +129,14 @@ def get_timestamp():
 
 def get_userid_appid_secret():
     '获得所有商家的appid和appSecret'
+    print 'getting orders'
     con = DB_CONNECTION
     cur = con.cursor()
     cur.execute(SQL_GET_APPID_SECRET)
     rows = cur.fetchall()
     userid_appid_secret = []  # 存放(user_id, appid, secret)元组的列表
     for row in rows:
+        print 'getting row'
         if row[1] and row[2]:
             userid_appid_secret.append((row[0], row[1], row[2]))
     return userid_appid_secret
@@ -155,7 +157,7 @@ def get_seconds():
 
 def get_start_created():
     '有赞接口开始交易时间,设置为3分钟之内的交易'
-    some_time_ago = datetime.datetime.now() - datetime.timedelta(minutes=3)
+    some_time_ago = datetime.datetime.now() - datetime.timedelta(minutes=120)
     some_time_ago_format = some_time_ago.strftime('%Y-%M-%d %H:%M:%S')
     return some_time_ago_format
 
@@ -165,11 +167,11 @@ def get_feie_printer_status(sn, key):
     encodedata = urllib.urlencode(params)
     urlstr = FEIE_HOST + FEIE_QUERY_PRINTER_STATUS_ACTION
     try:
-        result = urllib.urlopen(url=urlstr, data=encodedata, timeout=1)
+        result = urllib2.urlopen(url=urlstr, data=encodedata).read()
     except urllib2.HTTPError, e:
         print e
     else:
-        handle_printer_status_result(result)
+        return result
 
 
 def handle_printer_status_result(result):
@@ -178,6 +180,8 @@ def handle_printer_status_result(result):
 if __name__ == '__main__':
     # get_feie_printer_status(1, 2)
     # print get_start_created()
+    #print_status = get_feie_printer_status('815500235', '8yct23Du')
+    #print print_status
     DB_CONNECTION = get_db_con()
     while 1:
         # 每分钟第10秒,断开数据库连接,重新连
