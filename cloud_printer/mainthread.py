@@ -1,7 +1,7 @@
 # coding=utf-8
 '''
 Created on 2015年5月12日
-云打印,自动获取订单
+云打印,自动获取订单,使用了python-memcached包
 @author: Administrator
 '''
 import MySQLdb
