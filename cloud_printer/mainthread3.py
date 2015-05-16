@@ -14,6 +14,7 @@ import json
 import threading
 import thread
 import memcache
+import sqlite3
 
 
 MEMCACHE_TIME_OUT = 3600  # memcached 过期时间
@@ -79,36 +80,23 @@ class OrderThread(threading.Thread):
     def run(self):
         get_orders(self.user_id, self.app_id, self.app_secret, 1)
 
-'''
-class PrinterStatusThread(threading.Thread):
-
-    '获取打印机的最新状态信息和旧状态做比对'
-
-    def __init__(self, printer_id, number, key, status, info):
-        threading.Thread.__init__(self)
-        self.printer_id = printer_id  # 对应表字段 printer_id
-        self.number = number    # 对应表字段 printer_number
-        self.key = key      # 对应表字段 printer_key
-        self.status = status  # 对应表字段 sys_status
-        self.info = info  # 对应表字段 printer_info
-
-    def run(self):
-        update_printer_status(
-            self.printer_id, self.number, self.key, self.status, self.info)
-'''
-
 
 def update_printer_status(print_id, number, key, status, info):
     new_status, new_info = get_new_printer_status(number, key)
     if status != new_status or info != new_info:
         data = {'token': TOKEN, 'printer_id': print_id,
                 'printer_info': new_info.encode('utf-8'), 'printer_status': new_status}
-        # try:
         encode_data = urllib.urlencode(data)
         url = PHP_PRINTERS_STATUS_URL + encode_data
-        print url
-        urllib.urlopen(url)
-        print TimeUtils.get_timestamp(), 'send', print_id, new_status
+        try:
+            result = urllib.urlopen(url).read()
+        except Exception, e:
+            sqlite_log(
+                event='send printer status', local_data=str(e), push_data=url)
+        else:
+            result_json = json.loads(result)
+            sqlite_log(event='send printer status', local_data='function update_printer_status', push_data=url, response_status=result_json.get(
+                'success'), response_data=result_json.get('result', None))
 
 
 def get_url_data(app_id, app_secret, page_no):
@@ -136,15 +124,20 @@ def get_orders(user_id, app_id, app_secret, page_no):
     有订单的格式是:{"response": {"trades": [{"num": 1, "num_iid": "19575614", "price": "3.50", "pic_path": "http:\/\/imgqn.koudaitong.com\/upload_files\/2015\/04\/07\/FpDwHsHWMWRB_UhEJxFQgTBnP-Ch.jpg", "pic_thumb_path": "http:\/\/imgqn.koudaitong.com\/upload_files\/2015\/04\/07\/FpDwHsHWMWRB_UhEJxFQgTBnP-Ch.jpg!200x0.jpg", "title": "\u7edf\u4e00 \u6765\u4e00\u6876 \u8001\u575b\u9178\u83dc\u725b\u8089\u9762 \u6876\u88c5 \u6876\u9762 \u6ce1\u9762\u5373\u98df\u901f\u98df \u65b9\u4fbf\u9762", "type": "COD", "discount_fee": "0.00", "status": "WAIT_SELLER_SEND_GOODS", "shipping_type": "express", "post_fee": "0.00", "total_fee": "3.50", "refunded_fee": "0.00", "payment": "3.50", "created": "2015-05-12 21:06:57", "update_time": "2015-05-12 21:07:41", "pay_time": "2015-05-12 21:07:41", "pay_type": "CODPAY", "consign_time": "", "sign_time": "", "buyer_area": "\u5317\u4eac\u5e02\u5317\u4eac\u5e02", "seller_flag": 0, "buyer_message": "", "orders": [{"outer_sku_id": "", "outer_item_id": "", "title": "\u7edf\u4e00 \u6765\u4e00\u6876 \u8001\u575b\u9178\u83dc\u725b\u8089\u9762 \u6876\u88c5 \u6876\u9762 \u6ce1\u9762\u5373\u98df\u901f\u98df \u65b9\u4fbf\u9762",s                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               "seller_nick": "\u51e1\u5feb\u751f\u6d3b", "fenxiao_price": "0.00", "price": "3.50", "total_fee": "3.50", "payment": "3.50", "discount_fee": "0.00", "sku_id": 0, "sku_unique_code": "", "sku_properties_name": "", "pic_path": "http:\/\/imgqn.koudaitong.com\/upload_files\/2015\/04\/07\/FpDwHsHWMWRB_UhEJxFQgTBnP-Ch.jpg", "pic_thumb_path": "http:\/\/imgqn.koudaitong.com\/upload_files\/2015\/04\/07\/FpDwHsHWMWRB_UhEJxFQgTBnP-Ch.jpg!200x0.jpg", "item_type": 0, "buyer_messages": [], "order_promotion_details":[], "num_iid":"19575614", "num":"1"}], "fetch_detail":null, "coupon_details":[], "sub_trades":[], "weixin_user_id":"0", "buyer_nick":"", "tid":"E20150512210657921667948", "buyer_type":"0", "buyer_id":"0", "trade_memo":"", "receiver_city":"\u5317\u4eac\u5e02", "receiver_district":"\u671d\u9633\u533a", "receiver_name":"\u6731\u660e", "receiver_state":"\u5317\u4eac\u5e02", "receiver_address":"\u5316\u5de5\u5927\u5b661\u53f7\u697c116\u5bbf\u820d", "receiver_zip":"", "receiver_mobile":"18810463346", "feedback":0, "outer_tid":""}], "has_next": false}}
     如果有错误,格式是: {"error_response":{"code":40005,"msg":"invalid signature","params":{"status":"WAIT_SELLER_SEND_GOODS","timestamp":"2015-05-12 16:42:50","app_id":"6d3024789aa0b91bc3","sign":"256fcb4
     '''
+    global TID_USERID_MC
     url_data = get_url_data(app_id, app_secret, page_no)
-    orders_json_data = urllib.urlopen(YOUZAN_URL, url_data).read()
+    try:
+        orders_json_data = urllib.urlopen(YOUZAN_URL, url_data).read()
+    except Exception, e:
+        sqlite_log(event='get data from youzan', local_data=str(e))
     orders_data = json.loads(orders_json_data)
     if 'error_response' in orders_data:  # 如果返回错误
-        print TimeUtils.get_timestamp(), 'function get_orders,', orders_data['error_response']['msg']
+        sqlite_log(event='get orders from youzan', local_data='function get_orders:', response_data=orders_data['error_response']['msg'])
+        # print TimeUtils.get_timestamp(), 'function get_orders,', orders_data['error_response']['msg']
     if 'response' in orders_data:  # 如果返回正确
         trades = orders_data['response']['trades']
         if trades:  # 如果有订单
-            print TimeUtils.get_timestamp(), 'trades.length: ', len(trades), 'page: ', page_no
+            # print TimeUtils.get_timestamp(), 'trades.length: ', len(trades), 'page: ', page_no
             for trade in trades:
                 # 将订单的tid和user_id发送给php处理
                 # 如果mc里没有该tid
@@ -161,11 +154,14 @@ def php_orders(user_id, trade):
     '将user_id和trade发送给php'
     data = {'token': TOKEN, 'params': json.dumps(trade), 'user_id': user_id}
     try:
-        print TimeUtils.get_timestamp(), 'function php_orders, send orders to php success', urllib2.urlopen(url=PHP_ORDER_URL, data=urllib.urlencode(data)).read()
-    except urllib2.HTTPError, e:
-        print TimeUtils.get_timestamp(), 'function php_orders,', e
+        result = urllib2.urlopen(
+            url=PHP_ORDER_URL, data=urllib.urlencode(data)).read()
+    except Exception, e:
+        sqlite_log(event='send orders', local_data=str(e), push_data=data)
     else:
-        print TimeUtils.get_timestamp(), 'the data send to php:', 'user_id: ', user_id, ' tid: ', trade['tid']
+        result_json = json.loads(result)
+        sqlite_log(event='send orders', local_data='function php_orders', push_data=data, response_status=result_json.get(
+            'success'), response_data=result_json.get('result', None))
 
 
 def orders_job():
@@ -203,17 +199,17 @@ class TimeUtils():
 
 def get_userid_appid_secret():
     '获得所有商家的appid和appSecret'
-    print TimeUtils.get_timestamp(), 'function get_userid_appid_secret', 'getting orders'
     global DB_CONNECTION
     try:
         cur = DB_CONNECTION.cursor()
     except Exception, e:  # 如果数据库连接出错,就暂停5秒,重新连接,return None
-        print TimeUtils.get_timestamp(), 'function get_user_id_appid_secret:', e
+        sqlite_log('db connect error', str(e))
         get_db_con()
     try:
         cur.execute(SQL_GET_APPID_SECRET)
     except:
         get_db_con()
+        sqlite_log('db connect error', str(e))
         cur = DB_CONNECTION.cursor()
         cur.execute(SQL_GET_APPID_SECRET)
     rows = cur.fetchall()
@@ -228,13 +224,13 @@ def get_db_con():
     '获得数据库连接'
     global DB_CONNECTION
     try:
+        sqlite_log('db connecting', 'function get_db_con')
         DB_CONNECTION = MySQLdb.connect(
             host=DB_HOST, passwd=DB_PASSWORD, port=DB_PORT, user=DB_USER, db=DB_NAME, charset='utf8')
     except Exception, e:
-        print TimeUtils.get_timestamp(), 'function get_db_con: db error,', e
+        sqlite_log('db connect error', str(e))
         time.sleep(5)
         get_db_con()  # 重新连接
-    print TimeUtils.get_timestamp(), 'function get_db_con: get db connection'
 
 
 def get_new_printer_status(sn, key):
@@ -245,7 +241,8 @@ def get_new_printer_status(sn, key):
     try:
         result = urllib2.urlopen(url=urlstr, data=encodedata).read()
     except urllib2.HTTPError, e:
-        print e
+        sqlite_log(event='get printer status error', local_data=str(
+            e), push_data=urlstr + encodedata)
         return None
     else:
         result_data = json.loads(result)
@@ -264,9 +261,20 @@ def get_new_printer_status(sn, key):
 
 def get_feie_printer_status():
     '从数据库获取打印机信息'
-    con = DB_CONNECTION
-    cur = con.cursor()
-    cur.execute(SQL_GET_PRINT_STATUS)
+    global DB_CONNECTION
+    try:
+        cur = DB_CONNECTION.cursor()
+    except Exception, e:
+        sqlite_log('get printer status form db', str(e))
+        get_db_con()
+        cur = DB_CONNECTION.cursor()
+    try:
+        cur.execute(SQL_GET_PRINT_STATUS)
+    except Exception, e:
+        sqlite_log('get printer status form db', str(e))
+        get_db_con()
+        cur = DB_CONNECTION.cursor()
+        cur.execute(SQL_GET_PRINT_STATUS)
     rows = cur.fetchall()
     result = []
     for printer_id, number, key, status, info in rows:
@@ -283,16 +291,24 @@ def print_status_job():
                 update_printer_status, (printer_id, number, key, status, info))
 
 
+def sqlite_log(event, local_data, push_data=None, response_status=None, response_data=None):
+    try:
+        con = sqlite3.connect('log.db')
+        cur = con.cursor()
+        cur.execute('insert into log(event,local_data,push_data,response_status,response_data)values(%s,%s,%s,%s,%s)' % (
+            event, local_data, push_data, response_status, response_data))
+    except Exception, e:
+        print TimeUtils.get_timestamp(), e
+    con.commit()
+    con.close()
+
 if __name__ == '__main__':
-    global TID_USERID_MC
     TID_USERID_MC = memcache.Client(['127.0.0.1:11211'])
     get_db_con()
     while 1:
         orders_job()  # 读取订单,判断选择新订单发给php
         print_status_job()  # 读取打印机状态,状态更新了就发给php
         if TimeUtils.get_seconds() == '10':  # 每分钟第10秒,断开数据库连接,重新连接
-            global DB_CONNECTION
             DB_CONNECTION.close()
-            print TimeUtils.get_timestamp(), 'close db connection'
             get_db_con()
         time.sleep(1)
