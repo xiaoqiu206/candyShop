@@ -44,9 +44,8 @@ SQL_GET_APPID_SECRET = """
 SELECT 
     user_id, 
     appid, 
-    appsecert FROM 
-    user_view 
-WHERE user_id=7
+    appsecert 
+    FROM user_view 
 """
 # 获取飞蛾打印机状态信息的SQL语句
 SQL_GET_PRINT_STATUS = """
