@@ -131,12 +131,15 @@ def get_orders(user_id, app_id, app_secret, page_no):
         sqlite_log(event='get data from youzan', local_data=str(e))
     orders_data = json.loads(orders_json_data)
     if 'error_response' in orders_data:  # 如果返回错误
-        sqlite_log(event='get orders from youzan', local_data='function get_orders:', response_data=orders_data['error_response']['msg'])
-        # print TimeUtils.get_timestamp(), 'function get_orders,', orders_data['error_response']['msg']
+        sqlite_log(event='get orders from youzan', local_data='function get_orders:',
+                   response_data=orders_data)
+        # print TimeUtils.get_timestamp(), 'function get_orders,',
+        # orders_data['error_response']['msg']
     if 'response' in orders_data:  # 如果返回正确
         trades = orders_data['response']['trades']
         if trades:  # 如果有订单
-            # print TimeUtils.get_timestamp(), 'trades.length: ', len(trades), 'page: ', page_no
+            # print TimeUtils.get_timestamp(), 'trades.length: ', len(trades),
+            # 'page: ', page_no
             for trade in trades:
                 # 将订单的tid和user_id发送给php处理
                 # 如果mc里没有该tid
@@ -294,10 +297,11 @@ def sqlite_log(event, local_data, push_data=None, response_status=None, response
     try:
         con = sqlite3.connect('log.db')
         cur = con.cursor()
-        cur.execute('insert into log(event,local_data,push_data,response_status,response_data)values(%s,%s,%s,%s,%s)' % (
-            event, local_data, push_data, response_status, response_data))
+        data = (event, local_data, str(push_data), str(response_status), str(response_data))
+        cur.execute(
+            "insert into log(event,local_data,push_data,response_status,response_data)values(?,?,?,?,?)", data)
     except Exception, e:
-        print TimeUtils.get_timestamp(), e
+        print TimeUtils.get_timestamp(), 'function sqlite_log', e
     con.commit()
     con.close()
 
