@@ -32,7 +32,7 @@ class UpdatePrinterStatusThread(threading.Thread):
 
 def update_printer_status(print_id, number, key, status, info):
     new_status, new_info = get_new_printer_status(number, key)
-    if status != new_status or info != new_info:
+    if status != new_status.encode('utf-8') or info != new_info.encode('utf-8'):
         data = {'token': config.TOKEN, 'printer_id': print_id,
                 'printer_info': new_info.encode('utf-8'), 'printer_status': new_status}
         encode_data = urllib.urlencode(data)
@@ -81,9 +81,9 @@ def get_feie_printer_status():
     printer_status = []
     for printer_id in printer_ids:
         printer = r.hgetall('printer:' + printer_id)
-        if printer['printer_exp_time'] < TimeUtils.get_timestamp():
-            printer_status.append((printer_id, printer['printer_key'], printer[
-                                  'printer_status'], printer['printer_info']))
+        if printer['printer_exp_time'] > TimeUtils.get_timestamp():
+            printer_status.append((printer_id, printer.get('printer_number', ''), printer.get('printer_key', ''), printer.get(
+                                  'printer_status', ''), printer.get('printer_info', '')))
     return printer_status
 
 

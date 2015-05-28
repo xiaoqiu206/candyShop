@@ -108,19 +108,17 @@ def orders_job():
             order_thread.start()
         for order_thread in threads:
             order_thread.join()
-    else:  # 如果返回的是None(数据库连接出错)
-        return
 
 
 def get_userid_appid_secret():
     '获得所有商家的appid和appSecret'
     r = config.get_redis_con()
-    users = r.smembers('users')
+    user_ids = r.smembers('users')
     userid_appid_secret = []  # 存放(user_id, appid, secret)元组的列表
-    for user in users:
-        userid = user
-        appid = r.hget('user:' + user, 'appid')
-        appsecret = r.hget('user:' + user, 'appsecert')
+    for userid in user_ids:
+        user = r.hgetall('user:' + userid)
+        appid = user.get('appid', '')
+        appsecret = user.get('appsecert', '')
         userid_appid_secret.append((userid, appid, appsecret))
     return userid_appid_secret
 
