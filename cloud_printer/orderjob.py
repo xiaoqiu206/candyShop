@@ -63,21 +63,22 @@ def get_orders(user_id, app_id, app_secret, page_no):
     except Exception, e:
         config.sqlite_log('function get_orders',
                           'orders_data = json.loads(orders_json_data)', None, None, str(e))
-    if 'error_response' in orders_data:  # 如果返回错误
-        config.sqlite_log(event='get orders from youzan', local_data='function get_orders:',
-                          response_data=orders_data)
-    if 'response' in orders_data:  # 如果返回正确
-        trades = orders_data['response']['trades']
-        if trades:  # 如果有订单,将订单的tid和user_id发送给php处理
-            for trade in trades:
-                # 如果mc里没有该tid
-                if not config.get_memcache_con().get(trade['tid'].encode('utf-8')):
-                    php_orders(user_id, trade)  # 发送给php接口
-                    config.get_memcache_con().set(
-                        trade['tid'].encode('utf-8'), user_id, config.MEMCACHE_TIME_OUT)
-        if orders_data['response']['has_next']:  # 如果有下一页
-            page = page_no + 1
-            get_orders(user_id, app_id, app_secret, page)
+    else:
+        if 'error_response' in orders_data:  # 如果返回错误
+            config.sqlite_log(event='get orders from youzan', local_data='function get_orders:',
+                              response_data=orders_data)
+        if 'response' in orders_data:  # 如果返回正确
+            trades = orders_data['response']['trades']
+            if trades:  # 如果有订单,将订单的tid和user_id发送给php处理
+                for trade in trades:
+                    # 如果mc里没有该tid
+                    if not config.get_memcache_con().get(trade['tid'].encode('utf-8')):
+                        php_orders(user_id, trade)  # 发送给php接口
+                        config.get_memcache_con().set(
+                            trade['tid'].encode('utf-8'), user_id, config.MEMCACHE_TIME_OUT)
+            if orders_data['response']['has_next']:  # 如果有下一页
+                page = page_no + 1
+                get_orders(user_id, app_id, app_secret, page)
 
 
 def php_orders(user_id, trade):
@@ -91,9 +92,12 @@ def php_orders(user_id, trade):
         config.sqlite_log(
             event='send orders', local_data=str(e), push_data=data)
     else:
-        result_json = json.loads(result)
-        config.sqlite_log(event='send orders', local_data='function php_orders', push_data=data, response_status=result_json.get(
-            'success'), response_data=result_json.get('result', None))
+        try:
+            result_json = json.loads(result)
+            config.sqlite_log(event='send orders', local_data='function php_orders', push_data=data, response_status=result_json.get(
+                'success'), response_data=result_json.get('result', None))
+        except Exception, e:
+            config.sqlite_log(event='send orders', local_data='function php_orders', push_data=data, None, None)
 
 
 def orders_job():
