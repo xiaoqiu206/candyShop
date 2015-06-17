@@ -23,7 +23,7 @@ YOUZAN_URL = 'http://open.koudaitong.com/api/entry'
 YOUZAN_START_TIME = 100  # 获取100秒内的订单
 
 # FEIE打印机接口调用参数
-FEIE_HOST = 'http://121.42.48.187/WPServer'
+FEIE_HOST = ''
 FEIE_QUERY_PRINTER_STATUS_ACTION = '/queryPrinterStatusAction'
 
 # redis连接
@@ -36,10 +36,10 @@ def get_redis_con():
     if _REDIS_CONNECTION:
         return _REDIS_CONNECTION
     # redis连接参数
-    host = 'eda13b5ac70311e4.m.cnhza.kvstore.aliyuncs.com'
+    host = ''
     port = 6379
-    user = 'eda13b5ac70311e4'
-    pwd = 'Chuanmei76588'
+    user = ''
+    pwd = ''
     pool = redis.ConnectionPool(
         host=host, port=port, password=user + ':' + pwd)
     _REDIS_CONNECTION = redis.Redis(connection_pool=pool)
