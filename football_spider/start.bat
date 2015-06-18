@@ -1,1 +1,0 @@
-python football.py
