@@ -56,8 +56,8 @@ def ftime2stamp(ftime):
 def getList(page=1):
     print u'解析xml'
     reList = []
-    root = ET.fromstring(getXML(page))
-    # root = ET.fromstring(open('sample.xml').read())
+    # root = ET.fromstring(getXML(page))
+    root = ET.fromstring(open('sample_6-17.xml').read())
     if root.find('result').text == 'error':
         print root.find('message').find('errorCode').text
         print root.find('message').find('errorMsg').text
