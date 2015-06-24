@@ -6,5 +6,5 @@ Created on 2015年4月16日
 '''
 from PIL import ImageGrab
 
-im = ImageGrab.grab(bbox=(100, 100, 300, 300))
+im = ImageGrab.grab(bbox=(50, 100, 300, 300))
 im.save('e.jpg', 'jpeg')
