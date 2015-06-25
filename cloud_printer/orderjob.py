@@ -18,19 +18,26 @@ class OrderThread(threading.Thread):
 
     '处理商家订单'
 
-    def __init__(self, user_id, app_id, app_secret):
+    def __init__(self, user_id, app_id, app_secret, hasvirtual):
         threading.Thread.__init__(self)
         self.user_id = user_id
         self.app_id = app_id
         self.app_secret = app_secret
+        self.hasvirtual = hasvirtual
 
     def run(self):
-        get_orders(self.user_id, self.app_id, self.app_secret, 1)
+        get_orders(
+            self.user_id, self.app_id, self.app_secret, 'WAIT_SELLER_SEND_GOODS', 1)
+
+        # 虚拟商品下单后就是默认已经发货了,所以如果商家有卖虚拟商品,还要获取已经付款的订单
+        if self.hasvirtual == '1':
+            get_orders(
+                self.user_id, self.app_id, self.app_secret, 'WAIT_BUYER_CONFIRM_GOODS', 1)
 
 
-def get_url_data(app_id, app_secret, page_no):
+def get_url_data(app_id, app_secret, status, page_no):
     'get请求参数签名构造'
-    status = 'WAIT_SELLER_SEND_GOODS'
+    # status = 'WAIT_SELLER_SEND_GOODS'
     method = 'kdt.trades.sold.get'
     timestamp = TimeUtils.get_timestamp()
     v = '1.0'
@@ -47,13 +54,13 @@ def get_url_data(app_id, app_secret, page_no):
     return data
 
 
-def get_orders(user_id, app_id, app_secret, page_no):
+def get_orders(user_id, app_id, app_secret, status, page_no):
     '''
     通过有赞API接口获得订单,正确的返回格式是:{"response":{"total_results":0,"trades":[]}}
     有订单的格式是:{"response": {"trades": [{"num": 1, "num_iid": "19575614", "price": "3.50", "pic_path": "http:\/\/imgqn.koudaitong.com\/upload_files\/2015\/04\/07\/FpDwHsHWMWRB_UhEJxFQgTBnP-Ch.jpg", "pic_thumb_path": "http:\/\/imgqn.koudaitong.com\/upload_files\/2015\/04\/07\/FpDwHsHWMWRB_UhEJxFQgTBnP-Ch.jpg!200x0.jpg", "title": "\u7edf\u4e00 \u6765\u4e00\u6876 \u8001\u575b\u9178\u83dc\u725b\u8089\u9762 \u6876\u88c5 \u6876\u9762 \u6ce1\u9762\u5373\u98df\u901f\u98df \u65b9\u4fbf\u9762", "type": "COD", "discount_fee": "0.00", "status": "WAIT_SELLER_SEND_GOODS", "shipping_type": "express", "post_fee": "0.00", "total_fee": "3.50", "refunded_fee": "0.00", "payment": "3.50", "created": "2015-05-12 21:06:57", "update_time": "2015-05-12 21:07:41", "pay_time": "2015-05-12 21:07:41", "pay_type": "CODPAY", "consign_time": "", "sign_time": "", "buyer_area": "\u5317\u4eac\u5e02\u5317\u4eac\u5e02", "seller_flag": 0, "buyer_message": "", "orders": [{"outer_sku_id": "", "outer_item_id": "", "title": "\u7edf\u4e00 \u6765\u4e00\u6876 \u8001\u575b\u9178\u83dc\u725b\u8089\u9762 \u6876\u88c5 \u6876\u9762 \u6ce1\u9762\u5373\u98df\u901f\u98df \u65b9\u4fbf\u9762",s                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               "seller_nick": "\u51e1\u5feb\u751f\u6d3b", "fenxiao_price": "0.00", "price": "3.50", "total_fee": "3.50", "payment": "3.50", "discount_fee": "0.00", "sku_id": 0, "sku_unique_code": "", "sku_properties_name": "", "pic_path": "http:\/\/imgqn.koudaitong.com\/upload_files\/2015\/04\/07\/FpDwHsHWMWRB_UhEJxFQgTBnP-Ch.jpg", "pic_thumb_path": "http:\/\/imgqn.koudaitong.com\/upload_files\/2015\/04\/07\/FpDwHsHWMWRB_UhEJxFQgTBnP-Ch.jpg!200x0.jpg", "item_type": 0, "buyer_messages": [], "order_promotion_details":[], "num_iid":"19575614", "num":"1"}], "fetch_detail":null, "coupon_details":[], "sub_trades":[], "weixin_user_id":"0", "buyer_nick":"", "tid":"E20150512210657921667948", "buyer_type":"0", "buyer_id":"0", "trade_memo":"", "receiver_city":"\u5317\u4eac\u5e02", "receiver_district":"\u671d\u9633\u533a", "receiver_name":"\u6731\u660e", "receiver_state":"\u5317\u4eac\u5e02", "receiver_address":"\u5316\u5de5\u5927\u5b661\u53f7\u697c116\u5bbf\u820d", "receiver_zip":"", "receiver_mobile":"18810463346", "feedback":0, "outer_tid":""}], "has_next": false}}
     如果有错误,格式是: {"error_response":{"code":40005,"msg":"invalid signature","params":{"status":"WAIT_SELLER_SEND_GOODS","timestamp":"2015-05-12 16:42:50","app_id":"6d3024789aa0b91bc3","sign":"256fcb4
     '''
-    url_data = get_url_data(app_id, app_secret, page_no)
+    url_data = get_url_data(app_id, app_secret, status, page_no)
     try:
         orders_json_data = urllib.urlopen(config.YOUZAN_URL, url_data).read()
     except Exception, e:
@@ -78,7 +85,7 @@ def get_orders(user_id, app_id, app_secret, page_no):
                             trade['tid'].encode('utf-8'), user_id, config.MEMCACHE_TIME_OUT)
             if orders_data['response']['has_next']:  # 如果有下一页
                 page = page_no + 1
-                get_orders(user_id, app_id, app_secret, page)
+                get_orders(user_id, app_id, app_secret, status, page)
 
 
 def php_orders(user_id, trade):
@@ -97,16 +104,17 @@ def php_orders(user_id, trade):
             config.sqlite_log(event='send orders', local_data='function php_orders', push_data=data, response_status=result_json.get(
                 'success'), response_data=result_json.get('result', None))
         except Exception, e:
-            config.sqlite_log(event='send orders', local_data='function php_orders', push_data=data, None, None)
+            config.sqlite_log(
+                'send orders', 'function php_orders', data, None, None)
 
 
 def orders_job():
-    userid_appid_secret = get_userid_appid_secret()
-    if userid_appid_secret:
+    userid_appid_secret_hasvirtual = get_userid_appid_secret_hasvirtual()
+    if userid_appid_secret_hasvirtual:
         threads = []
-        for (user_id, app_id, app_secret) in userid_appid_secret:
+        for (user_id, app_id, app_secret, hasvirtual) in userid_appid_secret_hasvirtual:
             # 读取每个商家的订单,一个商家一个线程
-            order_thread = OrderThread(user_id, app_id, app_secret)
+            order_thread = OrderThread(user_id, app_id, app_secret, hasvirtual)
             threads.append(order_thread)
         for order_thread in threads:
             order_thread.start()
@@ -114,17 +122,19 @@ def orders_job():
             order_thread.join()
 
 
-def get_userid_appid_secret():
+def get_userid_appid_secret_hasvirtual():
     '获得所有商家的appid和appSecret'
     r = config.get_redis_con()
     user_ids = r.smembers('users')
-    userid_appid_secret = []  # 存放(user_id, appid, secret)元组的列表
+    userid_appid_secret_hasvirtual = []  # 存放(user_id, appid, secret)元组的列表
     for userid in user_ids:
         user = r.hgetall('user:' + userid)
         appid = user.get('appid', '')
         appsecret = user.get('appsecert', '')
-        userid_appid_secret.append((userid, appid, appsecret))
-    return userid_appid_secret
+        hasvirtual = user.get('virtual', '')
+        userid_appid_secret_hasvirtual.append(
+            (userid, appid, appsecret, hasvirtual))
+    return userid_appid_secret_hasvirtual
 
 
 if __name__ == '__main__':
