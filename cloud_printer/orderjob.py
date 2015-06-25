@@ -18,25 +18,16 @@ class OrderThread(threading.Thread):
 
     '处理商家订单'
 
-    def __init__(self, user_id, app_id, app_secret, hasvirtual):
+    def __init__(self, user_id, app_id, app_secret, status):
         threading.Thread.__init__(self)
         self.user_id = user_id
         self.app_id = app_id
         self.app_secret = app_secret
-        self.hasvirtual = hasvirtual
+        self.status = status
 
     def run(self):
-        '''
-        WAIT_SELLER_SEND_GOODS（等待卖家发货，即：买家已付款）
-        WAIT_BUYER_CONFIRM_GOODS（等待买家确认收货，即：卖家已发货）
-        '''
         get_orders(
-            self.user_id, self.app_id, self.app_secret, 'WAIT_SELLER_SEND_GOODS', 1)
-
-        # 虚拟商品下单后就是默认已经发货了,所以如果商家有卖虚拟商品,还要获取已经付款的订单
-        if self.hasvirtual == '1':
-            get_orders(
-                self.user_id, self.app_id, self.app_secret, 'WAIT_BUYER_CONFIRM_GOODS', 1)
+            self.user_id, self.app_id, self.app_secret, self.status, 1)
 
 
 def get_url_data(app_id, app_secret, status, page_no):
@@ -118,9 +109,18 @@ def orders_job():
     if userid_appid_secret_hasvirtual:
         threads = []
         for (user_id, app_id, app_secret, hasvirtual) in userid_appid_secret_hasvirtual:
-            # 读取每个商家的订单,一个商家一个线程
-            order_thread = OrderThread(user_id, app_id, app_secret, hasvirtual)
+            '''
+            WAIT_SELLER_SEND_GOODS（等待卖家发货，即：买家已付款）
+            WAIT_BUYER_CONFIRM_GOODS（等待买家确认收货，即：卖家已发货）
+            '''
+            order_thread = OrderThread(
+                user_id, app_id, app_secret, 'WAIT_SELLER_SEND_GOODS')
             threads.append(order_thread)
+        # 虚拟商品下单后就是默认已经发货了,所以如果商家有卖虚拟商品,还要获取已经付款的订单
+            if hasvirtual == '1':
+                order_thread1 = OrderThread(
+                    user_id, app_id, app_secret, 'WAIT_BUYER_CONFIRM_GOODS')
+                threads.append(order_thread1)
         for order_thread in threads:
             order_thread.start()
         for order_thread in threads:
