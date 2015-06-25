@@ -26,6 +26,10 @@ class OrderThread(threading.Thread):
         self.hasvirtual = hasvirtual
 
     def run(self):
+        '''
+        WAIT_SELLER_SEND_GOODS（等待卖家发货，即：买家已付款）
+        WAIT_BUYER_CONFIRM_GOODS（等待买家确认收货，即：卖家已发货）
+        '''
         get_orders(
             self.user_id, self.app_id, self.app_secret, 'WAIT_SELLER_SEND_GOODS', 1)
 
@@ -109,6 +113,7 @@ def php_orders(user_id, trade):
 
 
 def orders_job():
+    '主方法,获取商家key等信息,得到最近的需要打印,发货的订单,发送到php接口'
     userid_appid_secret_hasvirtual = get_userid_appid_secret_hasvirtual()
     if userid_appid_secret_hasvirtual:
         threads = []
