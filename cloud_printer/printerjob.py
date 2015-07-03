@@ -15,7 +15,9 @@ from config import TimeUtils
 
 class UpdatePrinterStatusThread(threading.Thread):
 
-    '更新打印机状态的线程'
+    '''
+    更新打印机状态的线程
+    '''
 
     def __init__(self, print_id, number, key, status, info):
         threading.Thread.__init__(self)
@@ -31,21 +33,23 @@ class UpdatePrinterStatusThread(threading.Thread):
 
 
 def update_printer_status(print_id, number, key, status, info):
-    new_status, new_info = get_new_printer_status(number, key)
-    if status != new_status.encode('utf-8') or info != new_info.encode('utf-8'):
-        data = {'token': config.TOKEN, 'printer_id': print_id,
-                'printer_info': new_info.encode('utf-8'), 'printer_status': new_status}
-        encode_data = urllib.urlencode(data)
-        url = config.PHP_PRINTERS_STATUS_URL + encode_data
-        try:
-            result = urllib.urlopen(url).read()
-        except Exception, e:
-            config.sqlite_log(
-                event='send printer status', local_data=str(e), push_data=url)
-        else:
-            result_json = json.loads(result)
-            config.sqlite_log(event='send printer status', local_data='function update_printer_status', push_data=url, response_status=result_json.get(
-                'success'), response_data=result_json.get('result', None))
+    status_info = get_new_printer_status(number, key)
+    if status_info:
+        new_status, new_info = status_info
+        if status != new_status.encode('utf-8') or info != new_info.encode('utf-8'):
+            data = {'token': config.TOKEN, 'printer_id': print_id,
+                    'printer_info': new_info.encode('utf-8'), 'printer_status': new_status}
+            encode_data = urllib.urlencode(data)
+            url = config.PHP_PRINTERS_STATUS_URL + encode_data
+            try:
+                result = urllib.urlopen(url).read()
+            except Exception, e:
+                config.sqlite_log(
+                    event='send printer status', local_data=str(e), push_data=url)
+            else:
+                result_json = json.loads(result)
+                config.sqlite_log(event='send printer status', local_data='function update_printer_status', push_data=url, response_status=result_json.get(
+                    'success'), response_data=result_json.get('result', None))
 
 
 def get_new_printer_status(sn, key):
@@ -55,7 +59,7 @@ def get_new_printer_status(sn, key):
     urlstr = config.FEIE_HOST + config.FEIE_QUERY_PRINTER_STATUS_ACTION
     try:
         result = urllib2.urlopen(url=urlstr, data=encodedata).read()
-    except urllib2.HTTPError, e:
+    except Exception, e:
         config.sqlite_log(event='get printer status error', local_data=str(
             e), push_data=urlstr + encodedata)
         return None
