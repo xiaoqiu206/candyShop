@@ -33,7 +33,6 @@ def get_new_accesstoken(user):
     else:
         if data['code']['errcode'] == 0 and data['code']['errmsg'] == 'success':
             access_token = data['data']['access_token']
-            expire_in = data['data']['expire_in']
             m = config.get_memcache_con()
             m.set('weimob_user:' + user['id'], access_token, 7000)
             return access_token
@@ -89,7 +88,7 @@ def get_order_id_nos(user):
         if not orders:
             return
         orders = json.loads(orders)
-        print orders
+        # print orders
         if orders['code']['errcode'] == 0:  # 表示获取订单成功
             data = orders['data']
             page_count = data['page_count']  # 总页数
@@ -121,7 +120,7 @@ def handle_order_id_no(order_id_no, user):
             event='weimeng get order', local_data=str(user), response_data=str(e))
         return
     json_data = json.loads(result_data)
-    print json_data['data'].get('order_no', 'no order')
+    # print json_data['data'].get('order_no', 'no order')
     if json_data['code']['errcode'] == 0:
         g = gevent.spawn(php_order, user, json_data, order_id_no)
         g.join()
@@ -134,17 +133,17 @@ def php_order(user, json_data, order_id_no):
     try:
         php_result = urllib2.urlopen(
             config.WEIMOB_ORDER_PUSH_URL, urllib.urlencode(php_data)).read()
-        print 'sending order to php', order_id_no
+        # print 'sending order to php', order_id_no
     except Exception, e:
-        print 'sending order failed', str(e)
+        # print 'sending order failed', str(e)
         config.sqlite_log(
             event='send weimeng order to php', local_data=str(order_id_no), response_data=str(e))
-
-    m = config.get_memcache_con()
-    m.set('weimob_orderno:' +
-          order_id_no[1], order_id_no[0], config.MEMCACHE_TIME_OUT)
-    config.sqlite_log(event='send weimeng order to php sucess', local_data=str(
-        order_id_no), response_data=php_result)
+    else:
+        m = config.get_memcache_con()
+        m.set('weimob_orderno:' +
+              order_id_no[1], order_id_no[0], config.MEMCACHE_TIME_OUT)
+        config.sqlite_log(event='send weimeng order to php sucess', local_data=str(
+            order_id_no), response_data=php_result)
 
 
 def handle_order(user):
@@ -173,4 +172,4 @@ def main():
 if __name__ == '__main__':
     while 1:
         main()
-        time.sleep(5)
+        time.sleep(1)
