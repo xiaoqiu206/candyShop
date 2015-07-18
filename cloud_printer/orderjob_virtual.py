@@ -67,7 +67,7 @@ def get_orders(user_id, app_id, app_secret, status, page_no):
                           'orders_data = json.loads(orders_json_data)', None, None, str(e))
     else:
         if 'error_response' in orders_data:  # 如果返回错误
-            config.sqlite_log(event='get orders from youzan', local_data='function get_orders:',
+            config.sqlite_log(event='get orders from youzan', push_data=url_data, local_data='function get_orders:',
                               response_data=orders_data)
         if 'response' in orders_data:  # 如果返回正确
             trades = orders_data['response']['trades']
