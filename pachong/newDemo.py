@@ -5,12 +5,20 @@ Created on 2015年4月14日
 @author: Administrator
 '''
 import urllib2
+import time
 
 
-try:
-    print urllib2.urlopen('http://odds.500.com/fenxi/ouzhi-452231.shtml?ctype=2')
-except urllib2.HTTPError, e:
-    print e.code
-    print e.msg
-    print e.headers
-    print e.fp.read()
+def now():
+    return time.strftime('%H:%M:%S')
+
+print now()
+
+
+stocks = ['http://hq.sinajs.cn/list=sh' +
+          str(x) for x in range(601008, 601555)]
+with file('stock.txt', 'wb') as f:
+    for stock in stocks:
+        html = urllib2.urlopen(stock).read()
+        f.write(html)
+
+print now()

@@ -82,9 +82,13 @@ def get_last_email_url(user, passwd, popaddress, num):
     return url
 
 
-def check_error(browser):
+def check_error(browser, checkemail=None):
     if browser.is_element_present_by_css('.error'):
         return browser.find_by_css('.error').first.value
+
+    if checkemail and browser.html.find(checkemail) == -1:
+        return checkemail
+
     return None
 
 
@@ -128,10 +132,18 @@ def step2(datalist, b, email_num1):
     print now(), fid, u'确认邮箱...'
     b.find_by_name('sbmt').first.click()
 
-    haserror = check_error(b)
-    if haserror:
-        print now(), fid, u'网页错误...', haserror
-        return
+    while 1:
+        haserror = check_error(b, checkemail=email)
+        if haserror:
+            if haserror == email:
+                print now(), fid, u'未知错误,发送邮件失败,刷新网页...', b.html
+                b.reload()
+                continue
+            else:
+                print now(), fid, u'网页错误...', haserror
+                return
+        else:
+            break
 
     while 1:
         print now(), fid, u'检查邮箱内的新邮件....'
@@ -194,7 +206,7 @@ def step2(datalist, b, email_num1):
 
 
 def main():
-    data = xlrd.open_workbook('qianggou.xls')
+    data = xlrd.open_workbook('qianggou6.xls')
     table = data.sheets()[0]
     nrows = table.nrows
     threads = []
