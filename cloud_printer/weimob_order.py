@@ -130,6 +130,11 @@ def php_order(user, json_data, order_id_no):
     data = json_data['data']
     php_data = {'token': config.WEIMOB_ORDER_PUSH_TOKEN, 'user_id': user['user_id'],
                 'params': json.dumps(data)}
+    
+    # 如果是在线支付,未支付,就不发送给php,其他的(在线支付,已支付 和 线下支付)要发送给php
+    if data['is_onlinepay'] and not data['pay_status']:
+        return
+
     try:
         php_result = urllib2.urlopen(
             config.WEIMOB_ORDER_PUSH_URL, urllib.urlencode(php_data)).read()
