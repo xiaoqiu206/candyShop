@@ -9,7 +9,6 @@ import urllib2
 import gevent
 import json
 import urllib
-
 import config
 
 from gevent import monkey
