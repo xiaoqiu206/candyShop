@@ -22,8 +22,8 @@ Parent.x = 3
 print Parent.x, Child1.x, Child2.x
 
 
-fib = lambda x: x > 1 and fib(x-1)+fib(x-2) or 1
-print fib(15)
+fib = lambda x: x > 1 and fib(x - 1) + fib(x - 2) or 1
+print fib(40)
 
 
 def fib1(n):
@@ -33,6 +33,6 @@ def fib1(n):
     """
     x, y = 1, 1
     while n:
-        x, y, n = y, x+y, n-1
+        x, y, n = y, x + y, n - 1
     return x
-print fib1(15)
+print fib1(1000)

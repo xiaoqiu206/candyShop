@@ -9,19 +9,17 @@ Created on 2015年10月16日
 '''
 # 先看看简单的一个函数有2个装饰器
 
-# 字体变粗装饰器
-
 
 def makebold(fn):
+    # 字体变粗装饰器
     # 装饰器将返回新的函数
     def wrapper():
         return '<b>' + fn() + '</bn>'
     return wrapper
 
-# 斜体装饰器
-
 
 def makeitalic(fn):
+    # 斜体装饰器
     # 装饰器将返回新的函数
     def wrapper():
         # 在之前或之后插入新的代码
@@ -43,7 +41,3 @@ def say():
 say = makeblod(makeitalic(say))
 print say()
 '''
-
-
-
-

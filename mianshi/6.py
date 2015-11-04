@@ -1,11 +1,18 @@
-# coding=utf-8
-"""
+from Tkinter import *
+root = Tk('Simple Editor')
+mi = StringVar()
+Label(text='Please input something you like~').pack()
+te = Text(height=30, width=100)
+te.pack()
+Label(text='      File name     ').pack(side=LEFT)
+Entry(textvariable=mi).pack(side=LEFT)
+mi.set('*.txt')
 
-"""
 
-
-name, age, height = ['ab', 12, 179]
-print name, age, height
-
-a1, a2, a3 = (1, 2, 3)
-print a1, a2, a3
+def save():
+    t = te.get('0.0', '10.0')
+    f = open(mi.get(), 'w')
+    f.write(t)
+Button(text='Save', command=save).pack(side=RIGHT)
+Button(text='Exit', command=root.quit).pack(side=RIGHT)
+mainloop()
