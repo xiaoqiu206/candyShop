@@ -1,3 +1,0 @@
-spider.py是爬虫程序, 可以在cmd里python spider.py 启动或用.bat
-upload2pgsql.pyc是上传程序,可以在cmd里python upload2pgsql.pyc启动或者用.bat
-启动程序前,先在config.py里设置好
