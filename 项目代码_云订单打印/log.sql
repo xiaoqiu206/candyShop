@@ -4,7 +4,7 @@ create table push_log(
     event varchar(50),
     local_data varchar(500) null,
     push_data varchar(500) null,
-    response_status char(10),
+    response_status char(10) null,
     response_data text default null,
     log_time datetime default(datetime(current_timestamp,'localtime'))
 );
@@ -21,7 +21,7 @@ create table push_log(
     event varchar(50),
     local_data varchar(500) null,
     push_data varchar(500) null,
-    response_status char(10),
+    response_status char(10) null,
     response_data text default null,
     log_time timestamp default CURRENT_TIMESTAMP
 );

@@ -73,7 +73,6 @@ def compare(printer):
 
 
 def push_to_php(printer):
-    #  print'push to php'
     data = {'token': config.WEIMOB_PRINTER_TOKEN, 'printer_id': printer['printer_id'].encode('utf-8'),
             'printer_info': printer['printer_info'].encode('utf-8'), 'printer_status': printer['printer_status'].encode('utf-8')
             }
@@ -93,7 +92,6 @@ def push_to_php(printer):
 
 def main():
     printers = get_printers()
-
     threads = []
     for printer in printers:
         thread = gevent.spawn(compare, printer)
