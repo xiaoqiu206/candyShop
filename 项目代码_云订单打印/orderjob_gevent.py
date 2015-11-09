@@ -14,6 +14,8 @@ import urllib2
 import json
 import config
 from config import TimeUtils
+import socket
+socket.setdefaulttimeout(5)
 
 
 def get_orders(user_id, app_id, app_secret, status, page_no):
@@ -31,19 +33,18 @@ def get_orders(user_id, app_id, app_secret, status, page_no):
         config.sqlite_log(event='get data from youzan', local_data=str(e))
         return
     try:
-        #         if user_id == '99':
-        #             #             config.sqlite_log(event='order info', local_data=str(
-        #             #                 args),  response_data=orders_json_data)
-        #             print 99
+        config.mysql_log(event='order info', local_data=str(
+            args),  response_data=orders_json_data)
         orders_data = json.loads(orders_json_data)
     except Exception, e:
         config.sqlite_log('function get_orders',
                           'orders_data = json.loads(orders_json_data)', None, orders_json_data, str(e))
     else:
+        '''因为每个请求都会记录,所以不用特别判断和记录错误返回
         if 'error_response' in orders_data:  # 如果返回错误
-
             config.sqlite_log(event='get orders from youzan', push_data=url_data, local_data=str(args),
                               response_data=orders_data)
+        '''
         if 'response' in orders_data:  # 如果返回正确
             trades = orders_data['response']['trades']
             if trades:  # 如果有订单,将订单的tid和user_id发送给php处理
@@ -115,7 +116,7 @@ def orders_job():
                 g1 = gevent.spawn(
                     get_orders, user_id, app_id, app_secret, 'WAIT_BUYER_CONFIRM_GOODS', 1)
                 gs.append(g1)
-        gevent.joinall(gs)
+            gevent.joinall(gs)
 
 
 def get_userid_appid_secret_hasvirtual():
