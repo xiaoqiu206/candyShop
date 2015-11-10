@@ -34,7 +34,7 @@ def get_orders(user_id, app_id, app_secret, status, page_no):
         return
     try:
         config.mysql_log(event='order info', local_data=str(
-            args),  response_data=orders_json_data)
+            args), push_data=url_data,  response_data=orders_json_data)
         orders_data = json.loads(orders_json_data)
     except Exception, e:
         config.sqlite_log('function get_orders',
