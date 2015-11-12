@@ -18,45 +18,66 @@ import socket
 socket.setdefaulttimeout(5)
 
 
-def get_orders(user_id, app_id, app_secret, status, page_no):
-    '''
-        通过有赞API接口获得订单,正确的返回格式是:{"response":{"total_results":0,"trades":[]}}
-        有订单的格式是:{"response": {"trades": [{"num": 1, "num_iid": "19575614", "price": "3.50", "pic_path": "http:\/\/imgqn.koudaitong.com\/upload_files\/2015\/04\/07\/FpDwHsHWMWRB_UhEJxFQgTBnP-Ch.jpg", "pic_thumb_path": "http:\/\/imgqn.koudaitong.com\/upload_files\/2015\/04\/07\/FpDwHsHWMWRB_UhEJxFQgTBnP-Ch.jpg!200x0.jpg", "title": "\u7edf\u4e00 \u6765\u4e00\u6876 \u8001\u575b\u9178\u83dc\u725b\u8089\u9762 \u6876\u88c5 \u6876\u9762 \u6ce1\u9762\u5373\u98df\u901f\u98df \u65b9\u4fbf\u9762", "type": "COD", "discount_fee": "0.00", "status": "WAIT_SELLER_SEND_GOODS", "shipping_type": "express", "post_fee": "0.00", "total_fee": "3.50", "refunded_fee": "0.00", "payment": "3.50", "created": "2015-05-12 21:06:57", "update_time": "2015-05-12 21:07:41", "pay_time": "2015-05-12 21:07:41", "pay_type": "CODPAY", "consign_time": "", "sign_time": "", "buyer_area": "\u5317\u4eac\u5e02\u5317\u4eac\u5e02", "seller_flag": 0, "buyer_message": "", "orders": [{"outer_sku_id": "", "outer_item_id": "", "title": "\u7edf\u4e00 \u6765\u4e00\u6876 \u8001\u575b\u9178\u83dc\u725b\u8089\u9762 \u6876\u88c5 \u6876\u9762 \u6ce1\u9762\u5373\u98df\u901f\u98df \u65b9\u4fbf\u9762",s                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               "seller_nick": "\u51e1\u5feb\u751f\u6d3b", "fenxiao_price": "0.00", "price": "3.50", "total_fee": "3.50", "payment": "3.50", "discount_fee": "0.00", "sku_id": 0, "sku_unique_code": "", "sku_properties_name": "", "pic_path": "http:\/\/imgqn.koudaitong.com\/upload_files\/2015\/04\/07\/FpDwHsHWMWRB_UhEJxFQgTBnP-Ch.jpg", "pic_thumb_path": "http:\/\/imgqn.koudaitong.com\/upload_files\/2015\/04\/07\/FpDwHsHWMWRB_UhEJxFQgTBnP-Ch.jpg!200x0.jpg", "item_type": 0, "buyer_messages": [], "order_promotion_details":[], "num_iid":"19575614", "num":"1"}], "fetch_detail":null, "coupon_details":[], "sub_trades":[], "weixin_user_id":"0", "buyer_nick":"", "tid":"E20150512210657921667948", "buyer_type":"0", "buyer_id":"0", "trade_memo":"", "receiver_city":"\u5317\u4eac\u5e02", "receiver_district":"\u671d\u9633\u533a", "receiver_name":"\u6731\u660e", "receiver_state":"\u5317\u4eac\u5e02", "receiver_address":"\u5316\u5de5\u5927\u5b661\u53f7\u697c116\u5bbf\u820d", "receiver_zip":"", "receiver_mobile":"18810463346", "feedback":0, "outer_tid":""}], "has_next": false}}
-        如果有错误,格式是: {"error_response":{"code":40005,"msg":"invalid signature","params":{"status":"WAIT_SELLER_SEND_GOODS","timestamp":"2015-05-12 16:42:50","app_id":"6d3024789aa0b91bc3","sign":"256fcb4
-    '''
+def create_url(user, status, page_no):
+    app_id = user.get('appid')
+    app_secret = user.get('appsecret') or user.get('appsecert')
+    access_token = user.get('accesstoken')
+
+    # 请求参数构造
+    method = 'kdt.trades.sold.get'
+    timestamp = TimeUtils.get_timestamp()
+    v = '1.0'
+    use_has_next = 'true'
+    page_size = 100
+    start_update = TimeUtils.get_start_created()
+
+    if app_id and app_secret:
+
+        sign = '%sapp_id%smethod%spage_no%dpage_size%dstart_update%sstatus%stimestamp%suse_has_next%sv%s%s' % (
+            app_secret, app_id, method, page_no, page_size, start_update, status, timestamp, use_has_next, v, app_secret)
+        md5_sign = hashlib.md5(sign).hexdigest()
+        url_data = {'status': status, 'method': method, 'use_has_next': use_has_next,
+                    'timestamp': timestamp, 'v': v, 'sign': md5_sign, 'app_id': app_id,
+                    'page_no': page_no, 'page_size': page_size, 'start_update': start_update}
+        url = config.YOUZAN_URL_APPID_SECRET + urllib.urlencode(url_data)
+
+    if access_token:
+        url_data = {'status': status, 'method': method, 'use_has_next': use_has_next,
+                    'timestamp': timestamp, 'v': v, 'accesstoken': access_token,
+                    'page_no': page_no, 'page_size': page_size, 'start_update': start_update}
+        url = config.YOUZAN_URL_ACCESSTOKEN + urllib.urlencode(url_data)
+    return url
+
+
+def get_orders(user, status, page_no):
+    url = create_url(user, status, page_no)
     args = locals()
-    url_data = get_url_data(app_id, app_secret, status, page_no)
+
     try:
-        orders_json_data = urllib.urlopen(
-            config.YOUZAN_URL, url_data).read()
+        orders_json_data = urllib.urlopen(url).read()
     except Exception, e:
         config.sqlite_log(event='get data from youzan', local_data=str(e))
         return
     try:
         config.mysql_log(event='order info', local_data=str(
-            args), push_data=url_data,  response_data=orders_json_data)
+            args), push_data=url,  response_data=orders_json_data)
         orders_data = json.loads(orders_json_data)
     except Exception, e:
         config.sqlite_log('function get_orders',
                           'orders_data = json.loads(orders_json_data)', None, orders_json_data, str(e))
     else:
-        '''因为每个请求都会记录,所以不用特别判断和记录错误返回
-        if 'error_response' in orders_data:  # 如果返回错误
-            config.sqlite_log(event='get orders from youzan', push_data=url_data, local_data=str(args),
-                              response_data=orders_data)
-        '''
         if 'response' in orders_data:  # 如果返回正确
             trades = orders_data['response']['trades']
             if trades:  # 如果有订单,将订单的tid和user_id发送给php处理
                 for trade in trades:
                         # 如果mc里没有该tid
                     if not config.get_memcache_con().get(trade['tid'].encode('utf-8')):
-                        php_orders(user_id, trade)  # 发送给php接口
+                        php_orders(user['user_id'], trade)  # 发送给php接口
                         config.get_memcache_con().set(
-                            trade['tid'].encode('utf-8'), user_id, config.MEMCACHE_TIME_OUT)
+                            trade['tid'].encode('utf-8'), user['user_id'], config.MEMCACHE_TIME_OUT)
             if orders_data['response']['has_next']:  # 如果有下一页
                 page = page_no + 1
-                get_orders(user_id, app_id, app_secret, status, page)
+                get_orders(user, status, page)
 
 
 def get_url_data(app_id, app_secret, status, page_no):
@@ -99,39 +120,36 @@ def php_orders(user_id, trade):
 
 def orders_job():
     '主方法,获取商家key等信息,得到最近的需要打印,发货的订单,发送到php接口'
-    userid_appid_secret_hasvirtual = get_userid_appid_secret_hasvirtual()
-    if userid_appid_secret_hasvirtual:
+    users = get_users()
+    if users:
         gs = []
-        for (user_id, app_id, app_secret, hasvirtual) in userid_appid_secret_hasvirtual:
+        for user in users:
             '''
             WAIT_SELLER_SEND_GOODS（等待卖家发货，即：买家已付款）
             WAIT_BUYER_CONFIRM_GOODS（等待买家确认收货，即：卖家已发货）
             '''
             g = gevent.spawn(
-                get_orders, user_id, app_id, app_secret, 'WAIT_SELLER_SEND_GOODS', 1)
+                get_orders, user, 'WAIT_SELLER_SEND_GOODS', 1)
 
             gs.append(g)
             # 虚拟商品下单后就是默认已经发货了,所以如果商家有卖虚拟商品,还要获取已经付款的订单
-            if hasvirtual == '1':
+            if user.get('virtual') == '1':
                 g1 = gevent.spawn(
-                    get_orders, user_id, app_id, app_secret, 'WAIT_BUYER_CONFIRM_GOODS', 1)
+                    get_orders, user, 'WAIT_BUYER_CONFIRM_GOODS', 1)
                 gs.append(g1)
             gevent.joinall(gs)
 
 
-def get_userid_appid_secret_hasvirtual():
+def get_users():
     '获得所有商家的appid和appSecret'
     r = config.get_redis_con()
     user_ids = r.smembers('users')
-    userid_appid_secret_hasvirtual = []
+    users = []
     for userid in user_ids:
         user = r.hgetall('user:' + userid)
-        appid = user.get('appid', '')
-        appsecret = user.get('appsecert', '')
-        hasvirtual = user.get('virtual', '')
-        userid_appid_secret_hasvirtual.append(
-            (userid, appid, appsecret, hasvirtual))
-    return userid_appid_secret_hasvirtual
+        user['user_id'] = userid
+        users.append(user)
+    return users
 
 
 if __name__ == '__main__':
