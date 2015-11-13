@@ -50,7 +50,6 @@ def create_url(user, status, page_no):
 
 
 def get_token(user):
-    args = locals()
     data = {'grant_type': 'refresh_token', 'refresh_token': user.get(
         'refresh_token'), 'client_id': user.get('client_id'), 'client_secret': user.get('client_secret')}
     req = urllib2.Request(
@@ -62,16 +61,14 @@ def get_token(user):
 
 def get_orders(user, status, page_no):
     url = create_url(user, status, page_no)
-    args = locals()
-
     try:
         orders_json_data = urllib.urlopen(url).read()
     except Exception, e:
-        config.sqlite_log(event='get data from youzan', local_data=str(e))
+        config.sqlite_log(event='get data from youzan', local_data=str(user))
         return
     try:
-        config.mysql_log(event='order info', local_data=str(
-            args), push_data=url,  response_data=orders_json_data)
+        config.mysql_log(event='order info', local_data=user[
+                         'user_id'], push_data=url,  response_data=orders_json_data)
         orders_data = json.loads(orders_json_data)
     except Exception, e:
         config.sqlite_log('function get_orders',

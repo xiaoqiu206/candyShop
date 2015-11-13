@@ -1,5 +1,4 @@
 eclipse.preferences.version=1
-encoding//demo01/d1.py=utf-8
 encoding//demo01/gevent_demo.py=utf-8
 encoding//demo01/gevent_demo03.py=utf-8
 encoding//demo01/gevent_demo2.py=utf-8
@@ -48,7 +47,7 @@ encoding//\u88C5\u9970\u5668/\u88C5\u9970\u5668\u548C\u6590\u6CE2\u90A3\u5951.py
 encoding//\u88C5\u9970\u5668/\u88C5\u9970\u5668\u7F13\u5B58.py=utf-8
 encoding//\u9879\u76EE\u4EE3\u7801_1/xinwen.py=utf-8
 encoding//\u9879\u76EE\u4EE3\u7801_\u4E91\u8BA2\u5355\u6253\u5370/config.py=utf-8
-encoding//\u9879\u76EE\u4EE3\u7801_\u4E91\u8BA2\u5355\u6253\u5370/orderjob_gevent.py=utf-8
+encoding//\u9879\u76EE\u4EE3\u7801_\u4E91\u8BA2\u5355\u6253\u5370/orderjob.py=utf-8
 encoding//\u9879\u76EE\u4EE3\u7801_\u4E91\u8BA2\u5355\u6253\u5370/orderjob_thread.py=utf-8
 encoding//\u9879\u76EE\u4EE3\u7801_\u4E91\u8BA2\u5355\u6253\u5370/printerjob.py=utf-8
 encoding//\u9879\u76EE\u4EE3\u7801_\u4E91\u8BA2\u5355\u6253\u5370/weimob_order.py=utf-8
