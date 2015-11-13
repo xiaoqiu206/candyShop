@@ -22,9 +22,7 @@ def print_time(fuc):
 
 
 @print_time
-def dbtest(x, con):
-
-    cur = con.cursor()
+def dbtest(x):
     cur.execute('select 100 from demo01 limit 1;')
     rows = cur.fetchall()
     cur.close()
@@ -33,12 +31,13 @@ def dbtest(x, con):
 
 
 def empty_fn():
-    pass
+    print 'empty'
 
 t1 = time.time()
 con = pymysql.connect(
     host='127.0.0.1', user='root', passwd='123321', db='test', port=3306)
-gevent.joinall([gevent.spawn(dbtest, x, con) for x in range(200)])
-# dbtest(3, con)
+cur = con.cursor()
+gevent.joinall([gevent.spawn(dbtest, 3), gevent.spawn(empty_fn)])
+# dbtest(3)
 t2 = time.time()
 print t2 - t1

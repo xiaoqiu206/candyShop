@@ -43,10 +43,21 @@ def create_url(user, status, page_no):
 
     if access_token:
         url_data = {'status': status, 'method': method, 'use_has_next': use_has_next,
-                    'timestamp': timestamp, 'v': v, 'accesstoken': access_token,
+                    'timestamp': timestamp, 'v': v, 'access_token': access_token,
                     'page_no': page_no, 'page_size': page_size, 'start_update': start_update}
         url = config.YOUZAN_URL_ACCESSTOKEN + urllib.urlencode(url_data)
     return url
+
+
+def get_token(user):
+    args = locals()
+    data = {'grant_type': 'refresh_token', 'refresh_token': user.get(
+        'refresh_token'), 'client_id': user.get('client_id'), 'client_secret': user.get('client_secret')}
+    req = urllib2.Request(
+        config.YOUZAN_URL_REFRESH_TOKEN, urllib.urlencode(data))
+    response = urllib2.urlopen(req)
+    the_page = response.read()
+    return the_page
 
 
 def get_orders(user, status, page_no):
@@ -66,6 +77,11 @@ def get_orders(user, status, page_no):
         config.sqlite_log('function get_orders',
                           'orders_data = json.loads(orders_json_data)', None, orders_json_data, str(e))
     else:
+        # 如果accesstoken失效,重新获取
+        error_response = orders_data.get('error_response')
+        if error_response and error_response['code'] in (40010, 40011):
+            get_token(user)
+
         if 'response' in orders_data:  # 如果返回正确
             trades = orders_data['response']['trades']
             if trades:  # 如果有订单,将订单的tid和user_id发送给php处理
@@ -152,7 +168,10 @@ def get_users():
     return users
 
 
-if __name__ == '__main__':
+def main():
     while 1:
-        orders_job()  # 读取订单,判断选择新订单发给php
+        orders_job()
         time.sleep(1)
+
+if __name__ == '__main__':
+    main()

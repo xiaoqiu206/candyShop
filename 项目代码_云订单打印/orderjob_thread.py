@@ -57,7 +57,8 @@ def get_orders(user_id, app_id, app_secret, status, page_no):
     '''
     url_data = get_url_data(app_id, app_secret, status, page_no)
     try:
-        orders_json_data = urllib.urlopen(config.YOUZAN_URL, url_data).read()
+        orders_json_data = urllib.urlopen(
+            config.YOUZAN_URL_APPID_SECRET, url_data).read()
     except Exception, e:
         config.sqlite_log(event='get data from youzan', local_data=str(e))
     try:

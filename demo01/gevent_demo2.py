@@ -27,6 +27,8 @@ def main():
     try:
         g1 = gevent.spawn(wait3)
         g2 = gevent.spawn(wait5)
+        g3 = gevent.spawn(wait3)
+        
         gevent.joinall([g1, g2])
     except Timeout:
         print 'timeout'
