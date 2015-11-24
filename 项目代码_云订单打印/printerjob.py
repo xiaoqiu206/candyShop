@@ -47,9 +47,12 @@ def update_printer_status(print_id, number, key, status, info):
                 config.sqlite_log(
                     event='send printer status', local_data=str(e), push_data=url)
             else:
-                result_json = json.loads(result)
-                config.sqlite_log(event='send printer status', local_data='function update_printer_status', push_data=url, response_status=result_json.get(
-                    'success'), response_data=result_json.get('result', None))
+                try:
+                    result_json = json.loads(result)
+                    config.sqlite_log(event='send printer status', local_data='function update_printer_status', push_data=url, response_status=result_json.get(
+                        'success'), response_data=result_json.get('result', None))
+                except Exception, e:
+                    print TimeUtils.get_timestamp(), 'load json', result_json
 
 
 def get_new_printer_status(sn, key):
