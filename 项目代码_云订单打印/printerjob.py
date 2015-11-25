@@ -112,6 +112,11 @@ def print_status_job():
             printer_thread.join()
 
 if __name__ == '__main__':
+    import traceback
     while 1:
-        print_status_job()  # 读取打印机状态,状态更新了就发给php
+        try:
+            print_status_job()  # 读取打印机状态,状态更新了就发给php
+        except Exception, e:
+            print TimeUtils.get_timestamp(), e
+            traceback.print_exc()
         time.sleep(1)

@@ -166,8 +166,13 @@ def get_users():
 
 
 def main():
+    import traceback
     while 1:
-        orders_job()
+        try:
+            orders_job()
+        except Exception, e:
+            print TimeUtils.get_timestamp(), e
+            traceback.print_exc()
         time.sleep(1)
 
 if __name__ == '__main__':
