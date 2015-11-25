@@ -7,10 +7,13 @@ Created on 2015年7月2日
 from gevent import monkey
 monkey.patch_all()
 import gevent
+
 import time
 import urllib
 import json
 import urllib2
+import socket
+socket.setdefaulttimeout(3)
 
 import config
 

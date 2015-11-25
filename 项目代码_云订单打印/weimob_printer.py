@@ -4,15 +4,18 @@ Created on 2015年7月1日
 微盟打印机状态
 @author: Administrator
 '''
-import time
-import urllib2
 import gevent
-import json
-import urllib
-import config
-
 from gevent import monkey
 monkey.patch_all()
+
+import urllib2
+import json
+import urllib
+import time
+import socket
+socket.setdefaulttimeout(3)
+
+import config
 
 
 def get_printers():

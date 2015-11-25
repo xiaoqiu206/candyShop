@@ -11,6 +11,8 @@ import json
 import threading
 import config
 from config import TimeUtils
+import socket
+socket.setdefaulttimeout(3)
 
 
 class UpdatePrinterStatusThread(threading.Thread):
