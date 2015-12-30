@@ -10,9 +10,6 @@ import tornado.options
 import tornado.web
 
 from uuid import uuid4
-import urllib
-import datetime
-import time
 
 
 class DetailHandler(tornado.web.RequestHandler):
