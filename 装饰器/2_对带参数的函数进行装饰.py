@@ -15,7 +15,7 @@ def deco(func):
         return ret
     return _deco
 
-
+@deco
 def myfunc(a, b):
     print 'myfunc(%s, %s) called' % (a, b)
     return a + b
