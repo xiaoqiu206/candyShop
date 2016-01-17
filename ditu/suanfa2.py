@@ -1,12 +1,11 @@
 # coding=utf-8
 '''
 Created on 2016年1月16日
-
+需要考虑2号线和4号线的换乘,在中南路换乘最方便
 @author: xiaoq
 '''
 import pymysql
 
-import codecs
 from pprint import pprint
 from itertools import permutations
 
@@ -64,7 +63,7 @@ class Station(object):
     int sid: 映射字段STATION_ID 站点id,
     int snum: 映射字段STATION_NUM 站点编号,
     str sname: 映射字段STATION_NAME 站点名称
-    int line_id: 映射字段LINE_ID 线路号,例如3号线,4号线
+    str line_id: 映射字段LINE_ID 线路号,例如3号线,4号线
     int is_transfer: 映射字段IS_TRANSFER 是否为换乘站
     int sequence: 映射字段SEQUENCE 站点排序字段,
     """
@@ -99,7 +98,7 @@ def get_stations():
     stations = []
     for sid, snum, sname, line_id, is_transfer, sequence in rows:
         stations.append(Station(
-            sid, str(snum), sname, line_id, is_transfer, sequence))
+            sid, str(snum), sname, str(line_id), is_transfer, sequence))
     return stations
 
 
@@ -125,10 +124,52 @@ def main():
     # pprint(snums)
     # print len(snums)  # 96个站,有6个是换乘站
     start_ends = permutations(snums, 2)
-    f = codecs.open('luxian1.txt', 'w', 'utf-8')
+    f = open('luxian1.txt', 'w')
     for start, end in start_ends:
-        short_path = find_shortest_path(tu, start, end)
-        # all_path = find_all_paths(tu, start, end)
+        # 如果2个站点在一条线路上,就直接用最短路径算法,节省时间和空间
+        # 将start和end所在线路全部存到一个列表里,如果有重复,就是在同一线路
+        line_ids = [
+            station.line_id for station in stations if station.snum in (start, end)]
+        length1 = len(line_ids)
+        length2 = len(set(line_ids))
+        if length2 < length1:
+            short_path = find_shortest_path(tu, start, end)
+        else:
+            # 先算出所有路径
+            all_path = find_all_paths(tu, start, end)
+            # 最短路径的长度
+            min_len = min([len(path) for path in all_path])
+            # 筛选出所有的最短路径
+            all_short_path = filter(
+                lambda path: len(path) == min_len, all_path)
+            if len(all_short_path) == 1:
+                # 如果最短路径方案只有一个,就直接使用这个
+                short_path = all_short_path[0]
+            else:
+                # 如果没有2号线和4号线换乘,随机选一条
+                # 如果有2号线和4号线换乘,就选择在中南路换乘的线路
+                for path in all_short_path:
+                    break_flag = 0
+                    if break_flag:
+                        break
+                    # 先计算出路径都走了几号线
+                    line_ids = []
+                    for cross_snum in path:
+                        if not snum_stations[cross_snum].is_transfer:
+                            line_ids.append(snum_stations[cross_snum].line_id)
+                    line_ids = ''.join(line_ids)
+                    if line_ids.find('24') > -1 or line_ids.find('42') > -1:
+                        # 如果有2号线和4号线换乘,选择在中南路换乘
+                        for cross_snum in path:
+                            if cross_snum == '44':  # 中南路的stataion_num是44
+                                short_path = path
+                                break_flag = 1
+                                break
+                    else:
+                        # 如果没有2号线和4号线换乘,随机选择一条
+                        short_path = path
+                        break
+
         f.write(snum_stations[start].sname + '-' +
                 snum_stations[end].sname + u' 路线: ')
         for each in short_path:
@@ -139,7 +180,7 @@ def main():
 if __name__ == "__main__":
     import sys
     reload(sys)
-    # sys.setdefaultencoding('utf-8')
+    sys.setdefaultencoding('utf-8')
     stations = get_stations()
     snums = list(set([station.snum for station in stations]))
     snum_stations = {station.snum: station for station in stations}
