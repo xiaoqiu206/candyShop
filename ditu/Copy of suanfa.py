@@ -1,11 +1,13 @@
 # coding=utf-8
 '''
 Created on 2016年1月16日
-第一版,不考虑4号线和2号线换乘方便
+
 @author: xiaoq
 '''
 import pymysql
 
+import codecs
+from pprint import pprint
 from itertools import permutations
 
 DB_HOST = '127.0.0.1'
@@ -123,12 +125,12 @@ def main():
     # pprint(snums)
     # print len(snums)  # 96个站,有6个是换乘站
     start_ends = permutations(snums, 2)
-    f = open('luxian1.txt', 'w')
+    f = codecs.open('luxian1.txt', 'w', 'utf-8')
     for start, end in start_ends:
         short_path = find_shortest_path(tu, start, end)
         # all_path = find_all_paths(tu, start, end)
         f.write(snum_stations[start].sname + '-' +
-                snum_stations[end].sname + ' 路线: ')
+                snum_stations[end].sname + u' 路线: ')
         for each in short_path:
             f.write(snum_stations[each].sname + '-')
         f.write('\n')
@@ -137,7 +139,7 @@ def main():
 if __name__ == "__main__":
     import sys
     reload(sys)
-    sys.setdefaultencoding('utf-8')
+    # sys.setdefaultencoding('utf-8')
     stations = get_stations()
     snums = list(set([station.snum for station in stations]))
     snum_stations = {station.snum: station for station in stations}
