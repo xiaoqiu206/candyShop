@@ -24,22 +24,6 @@ SELECT_STATION_SQL = """select
           from STATIONS;"""
 
 
-def find_all_paths(graph, start, end, path=[]):
-    '''找到图的所有路径算法'''
-    path = path + [start]
-    if start == end:
-        return [path]
-    if not graph.has_key(start):
-        return []
-    paths = []
-    for node in graph[start]:
-        if node not in path:
-            newpaths = find_all_paths(graph, node, end, path)
-            for newpath in newpaths:
-                paths.append(newpath)
-    return paths
-
-
 def find_shortest_path(graph, start, end, path=[]):
     '''找到图的最短路径算法'''
     path = path + [start]
@@ -97,7 +81,7 @@ def get_stations():
     stations = []
     for sid, snum, sname, line_id, is_transfer, sequence in rows:
         stations.append(Station(
-            sid, str(snum), sname, line_id, is_transfer, sequence))
+            sid, str(snum), sname, str(line_id), is_transfer, sequence))
     return stations
 
 
@@ -123,15 +107,27 @@ def main():
     # pprint(snums)
     # print len(snums)  # 96个站,有6个是换乘站
     start_ends = permutations(snums, 2)
-    f = open('luxian1.txt', 'w')
+    f = open('luxian3.txt', 'w')
     for start, end in start_ends:
         short_path = find_shortest_path(tu, start, end)
-        # all_path = find_all_paths(tu, start, end)
+        line_ids = []
+        for cross_station_num in short_path:
+            if not snum_stations[cross_station_num].is_transfer:
+                line_ids.append(snum_stations[cross_station_num].line_id)
+        line_ids = ''.join(line_ids)
+        if '24' in line_ids or '42' in line_ids:  # 如果有4号线和2号线换乘
+            pass
+        else:
+            print start, '-', end, ' 线路:'
+            for cross_station_num in short_path:
+                print ''
+        '''
         f.write(snum_stations[start].sname + '-' +
                 snum_stations[end].sname + ' 路线: ')
         for each in short_path:
             f.write(snum_stations[each].sname + '-')
         f.write('\n')
+        '''
     f.close()
 
 if __name__ == "__main__":
