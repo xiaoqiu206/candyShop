@@ -41,21 +41,21 @@ def find_all_paths(graph, start, end, path=[]):
     return paths
 
 
-def find_shortest_path(graph, start, end, path=[]):                          # A到F
+def find_shortest_path(graph, start, end, path=[]):
     '''找到图的最短路径算法'''
-    path = path + [start]                                                    #  [a]
-    if start == end:                                                         #  
-        return path                                                          #  
-    if not graph.has_key(start):                                             #  
-        return None                                                          #  
-    shortest = None                                                          #  
-    for node in graph[start]:                                                #  node:a,b,c
-        if node not in path:                                                 #  node:a
-            newpath = find_shortest_path(graph, node, end, path)             #  newpath=find_short(graph, c,f )
-            if newpath:                                                      #  
-                if not shortest or len(newpath) < len(shortest):             #  
-                    shortest = newpath                                       #  
-    return shortest                                                          #     
+    path = path + [start]
+    if start == end:
+        return path
+    if not graph.has_key(start):
+        return None
+    shortest = None
+    for node in graph[start]:
+        if node not in path:
+            newpath = find_shortest_path(graph, node, end, path)
+            if newpath:
+                if not shortest or len(newpath) < len(shortest):
+                    shortest = newpath
+    return shortest
 
 
 class Station(object):
