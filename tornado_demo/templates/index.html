@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>聊天室</title>
+</head>
+<body onload="init()">
+    <div id="chat_content" style="width:360px;height:350px;overflow-y:scroll; border:1px solid;">
+        
+    </div>
+    <br>
+    <input type="text" id="message" onkeypress="if(event.keyCode==13) {document.getElementById('send_btn').click();return false;}">
+     <input type="button" value="发送" id="send_btn" onclick="send_message();">
+     <script>
+         socket = new WebSocket("ws://localhost/test");
+         function init(){
+             socket.onmessage = function (e){
+                 var char_div = document.getElementById("chat_content");
+                 char_div.innerHTML += "<p>"+get_time()+e.data+"</p>";
+                 char_div.scrollTop = char_div.scrollHeight;
+             };
+         };
+         function send_message(){
+             var message =document.getElementById('message').value; 
+            socket.send(message);
+            document.getElementById('message').value = '';    
+            var char_div = document.getElementById("chat_content");
+            char_div.innerHTML += "<p>"+get10spaces()+get_time()+message+"</p>";
+            char_div.scrollTop = char_div.scrollHeight;
+         }
+         function get_time(){
+             var now = new Date();
+             return now.getHours() + ":" + now.getMinutes()+ ":"+now.getSeconds()+"&nbsp;";
+         }
+         function get10spaces(){
+             return "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+         }
+     </script>
+</body>
+</html>
