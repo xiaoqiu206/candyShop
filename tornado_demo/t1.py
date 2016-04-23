@@ -37,7 +37,7 @@ class Application(tornado.web.Application):
 class MainHandler(tornado.web.RequestHandler):
 
     def get(self):
-        self.render("index.html")
+        self.render("index1.html")
 
 
 class TestSocketHandler(tornado.websocket.WebSocketHandler):
@@ -51,12 +51,12 @@ class TestSocketHandler(tornado.websocket.WebSocketHandler):
     def on_close(self):
         logging.info("%s websocket close" % self.request.remote_ip)
         TestSocketHandler.clients.remove(self)
-        
+
     def on_message(self, message):
-        logging.info("%s get message %s" % (self.request.remote_ip,message))
+        logging.info("%s get message %s" % (self.request.remote_ip, message))
         self.send_to_all(message)
 
-    def send_to_all(self,message):
+    def send_to_all(self, message):
         for c in TestSocketHandler.clients:
             if c is not self:
                 c.write_message(message)
